@@ -1,7 +1,7 @@
 ---
 id: P01
 slug: multi-tenancy
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P00]
