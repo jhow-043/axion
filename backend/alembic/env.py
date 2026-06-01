@@ -12,6 +12,8 @@ from app.db.base import Base
 
 # Import all models here so Alembic detects schema changes.
 # Add new imports as each P## module is implemented:
+from app.modules.tenants.models import Tenant  # noqa: F401  # P01
+
 # from app.modules.users.models import User  # P04
 
 config = context.config
