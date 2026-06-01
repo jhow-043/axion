@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import (  # noqa: E402
 
 from app.core.deps import get_db  # noqa: E402
 from app.db.base import Base  # noqa: E402
+from app.shared.tenant_context import tenant_context  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -53,3 +54,9 @@ async def async_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, 
         yield client
 
     app.dependency_overrides.pop(get_db, None)
+
+
+@pytest.fixture
+def with_tenant():
+    """Factory fixture returning tenant_context() — use as: `with with_tenant(tenant_id): ...`"""
+    return tenant_context

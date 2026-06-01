@@ -1,7 +1,7 @@
 ---
 id: P00
 slug: fundacao-plataforma
-status: in-review
+status: done
 version: 1.0.0
 owner: jhowworks
 depends_on: []
