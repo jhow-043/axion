@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.Python
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing / Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.coveragerc
+
+# Ruff
+.ruff_cache/
+
+# SQLite (test db)
+*.db
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Node / Frontend
+node_modules/
+dist/
+.pnpm-store/
+
+# Logs
+*.log
+
+# Alembic (migrations geradas ficam no repo, mas não os logs)
+alembic/versions/__pycache__/
+
+# MCP / Claude local settings
+.claude/settings.local.json

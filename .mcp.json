@@ -1,0 +1,31 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "description": "Documentação sempre atualizada: FastAPI, SQLAlchemy 2.0, Pydantic v2, Alembic, Celery, TanStack Query, shadcn/ui, React Router. Use antes de qualquer integração com essas libs."
+    },
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://readonly:readonly@localhost:5432/manutencao_dev"
+      ],
+      "description": "Introspecção read-only do schema PG16. Use para validar que migrations batem com data-model.md e verificar índices por tenant_id. NUNCA use para alterar schema — apenas migrations Alembic fazem isso."
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "Criar/atualizar PRs, linkar issues a P##, consultar status de CI. Use no fluxo de PR e promoção entre ambientes."
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "description": "Conduzir testes E2E contra o frontend React. Use para verificar Critérios de Aceite E2E das specs (ex.: 'solicitante abre chamado → técnico assume → supervisor vê no dashboard')."
+    }
+  }
+}
