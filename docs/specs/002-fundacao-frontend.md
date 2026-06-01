@@ -1,7 +1,7 @@
 ---
 id: P02
 slug: fundacao-frontend
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P00]
