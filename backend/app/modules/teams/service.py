@@ -72,7 +72,7 @@ class TeamService:
             if existing is not None:
                 raise ConflictError("Nome de equipe já cadastrado neste tenant.")
             changes["name"] = data.name
-        if data.description is not None:
+        if "description" in data.model_fields_set:
             changes["description"] = data.description
 
         if changes:

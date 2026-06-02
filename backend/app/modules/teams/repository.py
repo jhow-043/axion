@@ -3,7 +3,6 @@ from __future__ import annotations
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.modules.teams.models import Team, TeamMember
@@ -33,10 +32,11 @@ class TeamRepository(BaseRepository[Team]):
         return list(result.scalars().unique().all())
 
     async def count_filtered(self, *, is_active: bool | None = None) -> int:
-        stmt = select(func.count()).select_from(Team).where(Team.tenant_id == self.tenant_id)
+        stmt = self._base_query()
         if is_active is not None:
             stmt = stmt.where(Team.is_active == is_active)
-        result = await self.session.execute(stmt)
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        result = await self.session.execute(count_stmt)
         return result.scalar_one()
 
     async def get_with_members(self, team_id: UUID) -> Team | None:
@@ -45,31 +45,20 @@ class TeamRepository(BaseRepository[Team]):
         return result.scalar_one_or_none()
 
 
-class TeamMemberRepository:
-    """Manages team member assignments. Tenant-scoped."""
-
-    def __init__(self, session: AsyncSession, tenant_id: UUID) -> None:
-        self.session = session
-        self.tenant_id = tenant_id
+class TeamMemberRepository(BaseRepository[TeamMember]):
+    # INV-01: domain data access through BaseRepository (ADR-0001)
+    __model__ = TeamMember
 
     async def find(self, team_id: UUID, user_id: UUID) -> TeamMember | None:
-        stmt = select(TeamMember).where(
+        stmt = self._base_query().where(
             TeamMember.team_id == team_id,
             TeamMember.user_id == user_id,
-            TeamMember.tenant_id == self.tenant_id,
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def add(self, team_id: UUID, user_id: UUID) -> TeamMember:
-        member = TeamMember(
-            tenant_id=self.tenant_id,
-            team_id=team_id,
-            user_id=user_id,
-        )
-        self.session.add(member)
-        await self.session.flush()
-        return member
+        return await self.create({"team_id": team_id, "user_id": user_id})
 
     async def remove(self, team_id: UUID, user_id: UUID) -> bool:
         member = await self.find(team_id, user_id)
@@ -80,9 +69,6 @@ class TeamMemberRepository:
         return True
 
     async def list_for_team(self, team_id: UUID) -> list[TeamMember]:
-        stmt = select(TeamMember).where(
-            TeamMember.team_id == team_id,
-            TeamMember.tenant_id == self.tenant_id,
-        )
+        stmt = self._base_query().where(TeamMember.team_id == team_id)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

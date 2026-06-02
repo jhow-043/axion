@@ -3,22 +3,22 @@ import { useParams } from "react-router";
 
 import { useAuth } from "@/shared/hooks/useAuth";
 import { hasPermission, Permissions } from "@/utils/permissions";
-import { useAddMember, useRemoveMember, useTeam, useTeamMembers } from "../api";
+import { useAddMember, useRemoveMember, useTeam } from "../api";
 
 export function TeamMembers() {
   const { id } = useParams<{ id: string }>();
   const { session } = useAuth();
   const canManage = hasPermission(session, Permissions.TEAM_MANAGE);
 
-  const { data: team, isLoading: teamLoading } = useTeam(id ?? "");
-  const { data: members, isLoading: membersLoading } = useTeamMembers(id ?? "");
+  const { data: team, isLoading } = useTeam(id ?? "");
   const addMember = useAddMember(id ?? "");
   const removeMember = useRemoveMember(id ?? "");
 
   const [newUserId, setNewUserId] = useState("");
   const [addError, setAddError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
 
-  if (teamLoading || membersLoading) {
+  if (isLoading) {
     return <div className="p-6 text-gray-500">Carregando membros...</div>;
   }
 
@@ -85,27 +85,43 @@ export function TeamMembers() {
 
       <div>
         <h2 className="text-lg font-medium mb-3">
-          Membros ({members?.length ?? 0})
+          Membros ({team.members.length})
         </h2>
 
-        {!members || members.length === 0 ? (
+        {team.members.length === 0 ? (
           <p className="text-gray-500 text-sm">Nenhum membro nesta equipe.</p>
         ) : (
           <ul className="divide-y rounded border">
-            {members.map((member) => (
+            {team.members.map((member) => (
               <li key={member.user_id} className="flex items-center justify-between px-4 py-3">
                 <span className="text-sm font-mono text-gray-700">{member.user_id}</span>
                 {canManage && (
-                  <button
-                    onClick={() => {
-                      if (confirm("Remover membro da equipe?")) {
-                        removeMember.mutate(member.user_id);
-                      }
-                    }}
-                    className="text-red-500 hover:underline text-xs"
-                  >
-                    Remover
-                  </button>
+                  confirmRemove === member.user_id ? (
+                    <span className="inline-flex gap-2 text-xs">
+                      <button
+                        onClick={() => {
+                          removeMember.mutate(member.user_id);
+                          setConfirmRemove(null);
+                        }}
+                        className="text-red-600 font-medium hover:underline"
+                      >
+                        Confirmar
+                      </button>
+                      <button
+                        onClick={() => setConfirmRemove(null)}
+                        className="text-gray-500 hover:underline"
+                      >
+                        Cancelar
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmRemove(member.user_id)}
+                      className="text-red-500 hover:underline text-xs"
+                    >
+                      Remover
+                    </button>
+                  )
                 )}
               </li>
             ))}
