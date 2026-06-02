@@ -1,14 +1,14 @@
 ---
 id: P07
 slug: catalogos-configuraveis
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04]
 satisfies: [RF-060, RF-061, RF-062, RF-063, RF-064]
 adrs: [ADR-0001, ADR-0002, ADR-0003]
 branch: feature/007-catalogos-configuraveis
-last_updated: 2026-06-01
+last_updated: 2026-06-02
 ---
 
 # P07 — Catálogos Configuráveis
