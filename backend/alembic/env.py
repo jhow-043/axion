@@ -9,12 +9,18 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import settings
 from app.db.base import Base
+from app.modules.auth.models import RefreshToken  # noqa: F401  # P03
 
 # Import all models here so Alembic detects schema changes.
 # Add new imports as each P## module is implemented:
 from app.modules.tenants.models import Tenant  # noqa: F401  # P01
-
-# from app.modules.users.models import User  # P04
+from app.modules.users.models import (  # noqa: F401  # P03/P04
+    Permission,
+    Role,
+    RolePermission,
+    User,
+    UserRole,
+)
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

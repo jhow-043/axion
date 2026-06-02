@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
 
+    # JWT (ADR-0005: refresh token via httpOnly cookie)
+    JWT_ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
+
     # Application
     APP_NAME: str = "Manutenção"
     DEBUG: bool = False

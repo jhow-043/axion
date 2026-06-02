@@ -7,6 +7,9 @@ from collections.abc import AsyncGenerator
 _TEST_DB_URL = os.environ.get("TEST_DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("DATABASE_URL", _TEST_DB_URL)
 os.environ.setdefault("SECRET_KEY", "test-secret-key-placeholder-not-for-production")
+os.environ.setdefault("JWT_ALGORITHM", "HS256")
+os.environ.setdefault("ACCESS_TOKEN_EXPIRE_MINUTES", "15")
+os.environ.setdefault("REFRESH_TOKEN_EXPIRE_DAYS", "7")
 
 import pytest  # noqa: E402
 from httpx import ASGITransport, AsyncClient  # noqa: E402
