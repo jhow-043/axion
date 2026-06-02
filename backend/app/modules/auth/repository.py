@@ -8,7 +8,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.auth.models import RefreshToken
-from app.modules.users.models import Role, User, UserRole
+from app.modules.users.models import Permission, Role, RolePermission, User, UserRole
 
 
 def _hash_token(token: str) -> str:
@@ -37,6 +37,18 @@ class UserAuthRepository:
             select(Role.code)
             .join(UserRole, UserRole.role_id == Role.id)
             .where(UserRole.user_id == user_id)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_permissions(self, user_id: UUID) -> list[str]:
+        """Returns the union of permission codes from all roles assigned to the user."""
+        stmt = (
+            select(Permission.code)
+            .join(RolePermission, RolePermission.permission_id == Permission.id)
+            .join(UserRole, UserRole.role_id == RolePermission.role_id)
+            .where(UserRole.user_id == user_id)
+            .distinct()
         )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())

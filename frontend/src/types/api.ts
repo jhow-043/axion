@@ -32,5 +32,6 @@ export interface UserSession {
   email: string;
   tenant_id: string;
   roles: string[];
+  permissions: string[];
   is_active: boolean;
 }
