@@ -83,4 +83,29 @@ describe("apiClient — interceptor refresh", () => {
 
     window.removeEventListener("auth:logout", logoutListener);
   });
+
+  it("requisições enfileiradas durante refresh falho são todas rejeitadas", async () => {
+    let refreshCalls = 0;
+
+    server.use(
+      http.get(`${BASE}/protected`, () =>
+        HttpResponse.json({ detail: "Não autorizado" }, { status: 401 }),
+      ),
+      http.post(`${BASE}/auth/refresh`, () => {
+        refreshCalls++;
+        return HttpResponse.json({ detail: "Token expirado" }, { status: 401 });
+      }),
+    );
+
+    const results = await Promise.allSettled([
+      apiClient.get("/protected"),
+      apiClient.get("/protected"),
+      apiClient.get("/protected"),
+    ]);
+
+    // todas as 3 promises devem ser rejeitadas, não pendentes
+    expect(results.every((r) => r.status === "rejected")).toBe(true);
+    // o refresh deve ter sido chamado apenas 1 vez (as demais enfileiraram)
+    expect(refreshCalls).toBe(1);
+  });
 });
