@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.config import settings
 from app.db.base import Base
 from app.modules.auth.models import RefreshToken  # noqa: F401  # P03
+from app.modules.catalog.models import Category, PendingReason, Priority, Status  # noqa: F401  # P07
+from app.modules.locations.models import Location, Sector  # noqa: F401  # P06
 from app.modules.teams.models import Team, TeamMember  # noqa: F401  # P05
 
 # Import all models here so Alembic detects schema changes.
