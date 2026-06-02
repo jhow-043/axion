@@ -88,3 +88,21 @@ def require_permission(permission_code: str) -> Callable:
         return current_user
 
     return _check
+
+
+def require_any_permission(*permission_codes: str) -> Callable:
+    """Factory returning a dependency that passes if the user holds ANY of the given permissions."""
+
+    async def _check(
+        current_user=Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
+    ):
+        from app.modules.auth.repository import UserAuthRepository
+
+        repo = UserAuthRepository(db)
+        permissions = await repo.get_permissions(current_user.id)
+        if not any(code in permissions for code in permission_codes):
+            raise HTTPException(status_code=403, detail="Permissão insuficiente.")
+        return current_user
+
+    return _check

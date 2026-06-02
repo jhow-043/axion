@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import (  # noqa: E402
 
 from app.core.deps import get_db  # noqa: E402
 from app.db.base import Base  # noqa: E402
+from app.modules.teams.models import Team, TeamMember  # noqa: E402, F401
 from app.shared.tenant_context import tenant_context  # noqa: E402
 
 

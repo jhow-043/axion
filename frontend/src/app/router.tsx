@@ -51,6 +51,34 @@ export const router = createBrowserRouter([
                 Component: m.UserDetail,
               })),
           },
+          {
+            path: "teams",
+            lazy: () =>
+              import("@/features/teams/components/TeamList").then((m) => ({
+                Component: m.TeamList,
+              })),
+          },
+          {
+            path: "teams/new",
+            lazy: () =>
+              import("@/features/teams/components/TeamForm").then((m) => ({
+                Component: m.TeamForm,
+              })),
+          },
+          {
+            path: "teams/:id",
+            lazy: () =>
+              import("@/features/teams/components/TeamMembers").then((m) => ({
+                Component: m.TeamMembers,
+              })),
+          },
+          {
+            path: "teams/:id/edit",
+            lazy: () =>
+              import("@/features/teams/components/TeamForm").then((m) => ({
+                Component: m.TeamForm,
+              })),
+          },
         ],
       },
     ],
