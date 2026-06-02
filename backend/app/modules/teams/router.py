@@ -91,7 +91,7 @@ async def list_members(
     return await service.list_members(team_id)
 
 
-@router.post("/{team_id}/members", response_model=list[MemberResponse], status_code=200)
+@router.post("/{team_id}/members", response_model=list[MemberResponse], status_code=201)
 async def add_member(
     team_id: UUID,
     body: MemberAddRequest,

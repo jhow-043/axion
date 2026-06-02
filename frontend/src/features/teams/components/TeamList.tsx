@@ -12,6 +12,7 @@ export function TeamList() {
   const canManage = hasPermission(session, Permissions.TEAM_MANAGE);
 
   const [filters, setFilters] = useState<TeamFilters>({ page: 1, page_size: 20 });
+  const [confirmDeactivate, setConfirmDeactivate] = useState<string | null>(null);
   const { data, isLoading, error } = useTeams(filters);
   const deactivate = useDeactivateTeam();
 
@@ -118,16 +119,32 @@ export function TeamList() {
                       Editar
                     </button>
                     {team.is_active && (
-                      <button
-                        onClick={() => {
-                          if (confirm(`Desativar equipe "${team.name}"?`)) {
-                            deactivate.mutate(team.id);
-                          }
-                        }}
-                        className="text-red-500 hover:underline text-xs"
-                      >
-                        Desativar
-                      </button>
+                      confirmDeactivate === team.id ? (
+                        <span className="inline-flex gap-1 text-xs">
+                          <button
+                            onClick={() => {
+                              deactivate.mutate(team.id);
+                              setConfirmDeactivate(null);
+                            }}
+                            className="text-red-600 font-medium hover:underline"
+                          >
+                            Confirmar
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeactivate(null)}
+                            className="text-gray-500 hover:underline"
+                          >
+                            Cancelar
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDeactivate(team.id)}
+                          className="text-red-500 hover:underline text-xs"
+                        >
+                          Desativar
+                        </button>
+                      )
                     )}
                   </td>
                 )}

@@ -131,7 +131,7 @@ class TestMemberManagement:
             f"/api/v1/teams/{team_id}/members",
             json={"user_id": str(technician_user.id)},
         )
-        assert resp.status_code == 200
+        assert resp.status_code == 201
         members = resp.json()
         user_ids = [m["user_id"] for m in members]
         assert str(technician_user.id) in user_ids

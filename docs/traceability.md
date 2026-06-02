@@ -24,60 +24,60 @@
 
 | RF/RNF | Descrição resumida | Spec | ADR | Branch/PR | Status |
 |--------|-------------------|------|-----|-----------|--------|
-| RF-001 | Healthcheck `/health` e `/ping` | P00 | — | feature/000 | pending |
-| RF-002 | Envelope de erro padronizado | P00 | — | feature/000 | pending |
-| RF-003 | Paginação com `page` e `page_size` | P00 | — | feature/000 | pending |
-| RF-004 | Config por variáveis de ambiente | P00 | — | feature/000 | pending |
-| RNF-OBS-001 | Logging estruturado JSON | P00 | — | feature/000 | pending |
-| RNF-MANUT-001 | ruff lint/format em todo PR | P00 | — | feature/000 | pending |
+| RF-001 | Healthcheck `/health` e `/ping` | P00 | — | feature/000 | done |
+| RF-002 | Envelope de erro padronizado | P00 | — | feature/000 | done |
+| RF-003 | Paginação com `page` e `page_size` | P00 | — | feature/000 | done |
+| RF-004 | Config por variáveis de ambiente | P00 | — | feature/000 | done |
+| RNF-OBS-001 | Logging estruturado JSON | P00 | — | feature/000 | done |
+| RNF-MANUT-001 | ruff lint/format em todo PR | P00 | — | feature/000 | done |
 
 ## Multi-Tenancy
 
 | RF/RNF | Descrição resumida | Spec | ADR | Branch/PR | Status |
 |--------|-------------------|------|-----|-----------|--------|
-| RF-010 | Isolamento completo entre tenants | P01 | ADR-0001 | feature/001 | pending |
-| RF-011 | BaseRepository aplica tenant automaticamente | P01 | ADR-0001 | feature/001 | pending |
-| RF-012 | Cross-tenant retorna 404 | P01 | ADR-0002 | feature/001 | pending |
-| RF-013 | tenant_id extraído do JWT via ContextVar | P01 | ADR-0004 | feature/001 | pending |
-| RNF-SEG-001 | Isolamento de dados entre tenants | P01 | ADR-0001 | feature/001 | pending |
+| RF-010 | Isolamento completo entre tenants | P01 | ADR-0001 | feature/001 | done |
+| RF-011 | BaseRepository aplica tenant automaticamente | P01 | ADR-0001 | feature/001 | done |
+| RF-012 | Cross-tenant retorna 404 | P01 | ADR-0002 | feature/001 | done |
+| RF-013 | tenant_id extraído do JWT via ContextVar | P01 | ADR-0004 | feature/001 | done |
+| RNF-SEG-001 | Isolamento de dados entre tenants | P01 | ADR-0001 | feature/001 | done |
 
 ## Autenticação
 
 | RF/RNF | Descrição resumida | Spec | ADR | Branch/PR | Status |
 |--------|-------------------|------|-----|-----------|--------|
-| RF-020 | Login JWT com access + refresh token | P03 | — | feature/003 | pending |
-| RF-021 | Rotação de refresh token | P03 | — | feature/003 | pending |
-| RF-022 | Logout invalida refresh token | P03 | — | feature/003 | pending |
-| RF-023 | Senha com Argon2 | P03 | — | feature/003 | pending |
-| RF-024 | Resposta genérica em login inválido | P03 | — | feature/003 | pending |
-| RF-025 | Token revogado invalida todos os tokens | P03 | — | feature/003 | pending |
-| RF-026 | `GET /auth/me` retorna dados e papéis | P03 | — | feature/003 | pending |
-| RNF-SEG-002 | Argon2 obrigatório | P03 | — | feature/003 | pending |
-| RNF-SEG-003 | JWT expiração curta + rotação | P03 | — | feature/003 | pending |
+| RF-020 | Login JWT com access + refresh token | P03 | — | feature/007 | in-review |
+| RF-021 | Rotação de refresh token | P03 | — | feature/007 | in-review |
+| RF-022 | Logout invalida refresh token | P03 | — | feature/007 | in-review |
+| RF-023 | Senha com Argon2 | P03 | — | feature/007 | in-review |
+| RF-024 | Resposta genérica em login inválido | P03 | — | feature/007 | in-review |
+| RF-025 | Token revogado invalida todos os tokens | P03 | — | feature/007 | in-review |
+| RF-026 | `GET /auth/me` retorna dados e papéis | P03 | — | feature/007 | in-review |
+| RNF-SEG-002 | Argon2 obrigatório | P03 | — | feature/007 | in-review |
+| RNF-SEG-003 | JWT expiração curta + rotação | P03 | — | feature/007 | in-review |
 
 ## Usuários e RBAC
 
 | RF/RNF | Descrição resumida | Spec | ADR | Branch/PR | Status |
 |--------|-------------------|------|-----|-----------|--------|
-| RF-030 | CRUD de usuários por tenant | P04 | ADR-0001 | feature/004 | pending |
-| RF-031 | RBAC com 4 papéis padrão | P04 | — | feature/004 | pending |
-| RF-032 | Papéis provisionados automaticamente | P04 | — | feature/004 | pending |
-| RF-033 | Permissões = união dos papéis | P04 | — | feature/004 | pending |
-| RF-034 | Admin único protegido | P04 | — | feature/004 | pending |
-| RF-035 | Usuário inativo não autentica | P04 | — | feature/004 | pending |
-| RF-036 | Email único por tenant | P04 | ADR-0002 | feature/004 | pending |
+| RF-030 | CRUD de usuários por tenant | P04 | ADR-0001 | feature/007 | in-review |
+| RF-031 | RBAC com 4 papéis padrão | P04 | — | feature/007 | in-review |
+| RF-032 | Papéis provisionados automaticamente | P04 | — | feature/007 | in-review |
+| RF-033 | Permissões = união dos papéis | P04 | — | feature/007 | in-review |
+| RF-034 | Admin único protegido | P04 | — | feature/007 | in-review |
+| RF-035 | Usuário inativo não autentica | P04 | — | feature/007 | in-review |
+| RF-036 | Email único por tenant | P04 | ADR-0002 | feature/007 | in-review |
 
-## Cadastros (Ondas 1)
+## Cadastros (Onda 1)
 
 | RF/RNF | Descrição resumida | Spec | ADR | Branch/PR | Status |
 |--------|-------------------|------|-----|-----------|--------|
-| RF-040 | CRUD de equipes | P05 | ADR-0001 | feature/005 | pending |
-| RF-041 | Chamados direcionados a equipes | P05, P09 | — | feature/005 | pending |
-| RF-042 | Técnicos membros de equipes | P05 | — | feature/005 | pending |
-| RF-050 | CRUD de setores | P06 | ADR-0001 | feature/006 | pending |
-| RF-051 | CRUD de locais prediais | P06 | ADR-0001 | feature/006 | pending |
-| RF-052 | Locais vinculáveis a chamados | P06, P09 | — | feature/006 | pending |
-| RF-060–064 | Catálogos configuráveis | P07 | ADR-0003 | feature/007 | pending |
+| RF-040 | CRUD de equipes | P05 | ADR-0001 | feature/007 | in-review |
+| RF-041 | Chamados direcionados a equipes | P05, P09 | — | feature/007 | in-review |
+| RF-042 | Técnicos membros de equipes | P05 | — | feature/007 | in-review |
+| RF-050 | CRUD de setores | P06 | ADR-0001 | feature/007 | in-review |
+| RF-051 | CRUD de locais prediais | P06 | ADR-0001 | feature/007 | in-review |
+| RF-052 | Locais vinculáveis a chamados | P06, P09 | — | feature/007 | in-review |
+| RF-060–064 | Catálogos configuráveis | P07 | ADR-0003 | feature/007 | in-review |
 | RF-070–071 | Equipamentos e vinculação a chamados | P08 | ADR-0001 | feature/008 | pending |
 
 ## Chamados e Workflow
