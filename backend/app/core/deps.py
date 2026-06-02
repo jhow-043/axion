@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, Query
@@ -68,3 +68,23 @@ async def get_current_tenant() -> UUID:
     if tenant_id is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
     return tenant_id
+
+
+def require_permission(permission_code: str) -> Callable:
+    """Factory returning a FastAPI dependency that enforces a permission check.
+    Raises 403 if the authenticated user does not hold the required permission.
+    Permissions are resolved from the DB on every request — no stale JWT cache (spec RN)."""
+
+    async def _check(
+        current_user=Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
+    ):
+        from app.modules.auth.repository import UserAuthRepository
+
+        repo = UserAuthRepository(db)
+        permissions = await repo.get_permissions(current_user.id)
+        if permission_code not in permissions:
+            raise HTTPException(status_code=403, detail="Permissão insuficiente.")
+        return current_user
+
+    return _check

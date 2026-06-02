@@ -19,6 +19,7 @@ from app.core.exceptions import (
 )
 from app.db.engine import dispose_engine, get_engine
 from app.modules.auth.router import router as auth_router
+from app.modules.users.router import permissions_router, roles_router, users_router
 from app.routers.health import api_router as health_api_router
 from app.routers.health import root_router as health_root_router
 
@@ -68,6 +69,9 @@ def create_app() -> FastAPI:
     app.include_router(health_root_router)
     app.include_router(health_api_router, prefix="/api/v1")
     app.include_router(auth_router, prefix="/api/v1")
+    app.include_router(users_router, prefix="/api/v1")
+    app.include_router(roles_router, prefix="/api/v1")
+    app.include_router(permissions_router, prefix="/api/v1")
 
     return app
 

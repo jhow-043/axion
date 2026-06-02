@@ -30,6 +30,27 @@ export const router = createBrowserRouter([
                 Component: m.DashboardRedirect,
               })),
           },
+          {
+            path: "users",
+            lazy: () =>
+              import("@/features/users/components/UserList").then((m) => ({
+                Component: m.UserList,
+              })),
+          },
+          {
+            path: "users/new",
+            lazy: () =>
+              import("@/features/users/components/UserForm").then((m) => ({
+                Component: m.UserForm,
+              })),
+          },
+          {
+            path: "users/:id",
+            lazy: () =>
+              import("@/features/users/components/UserDetail").then((m) => ({
+                Component: m.UserDetail,
+              })),
+          },
         ],
       },
     ],

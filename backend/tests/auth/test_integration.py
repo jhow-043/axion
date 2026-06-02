@@ -135,9 +135,7 @@ class TestRefresh:
         response = await auth_client.post("/api/v1/auth/refresh")
         assert response.status_code == 401
 
-    async def test_refresh_rotates_cookie(
-        self, auth_client: AsyncClient, active_user: User
-    ):
+    async def test_refresh_rotates_cookie(self, auth_client: AsyncClient, active_user: User):
         await auth_client.post(
             "/api/v1/auth/login",
             json={"email": "joao@empresa.com", "password": "senha123"},
@@ -167,9 +165,7 @@ class TestRefresh:
 
 
 class TestLogout:
-    async def test_logout_revokes_refresh_token(
-        self, auth_client: AsyncClient, active_user: User
-    ):
+    async def test_logout_revokes_refresh_token(self, auth_client: AsyncClient, active_user: User):
         await auth_client.post(
             "/api/v1/auth/login",
             json={"email": "joao@empresa.com", "password": "senha123"},
@@ -180,9 +176,7 @@ class TestLogout:
         refresh_response = await auth_client.post("/api/v1/auth/refresh")
         assert refresh_response.status_code == 401
 
-    async def test_logout_clears_cookie(
-        self, auth_client: AsyncClient, active_user: User
-    ):
+    async def test_logout_clears_cookie(self, auth_client: AsyncClient, active_user: User):
         await auth_client.post(
             "/api/v1/auth/login",
             json={"email": "joao@empresa.com", "password": "senha123"},

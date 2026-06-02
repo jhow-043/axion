@@ -92,12 +92,14 @@ class AuthService:
 
     async def get_me(self, user: User) -> UserMeResponse:
         roles = await self._users.get_role_codes(user.id)
+        permissions = await self._users.get_permissions(user.id)
         return UserMeResponse(
             id=user.id,
             name=user.name,
             email=user.email,
             tenant_id=user.tenant_id,
             roles=roles,
+            permissions=permissions,
             is_active=user.is_active,
         )
 

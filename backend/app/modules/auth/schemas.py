@@ -26,4 +26,5 @@ class UserMeResponse(BaseModel):
     email: str
     tenant_id: UUID
     roles: list[str]
+    permissions: list[str]
     is_active: bool
