@@ -3,10 +3,10 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, it, expect, vi } from "vitest";
 import { RequireRole } from "@/shared/components/RequireRole";
 import { AuthContext } from "@/app/providers/AuthProvider";
-import type { UserSession } from "@/types/api";
+import type { UserRole, UserSession } from "@/types/api";
 
-function makeSession(role: UserSession["role"]): UserSession {
-  return { id: "1", email: "a@b.com", full_name: "A", role, tenant_id: "t1" };
+function makeSession(role: UserRole): UserSession {
+  return { id: "1", email: "a@b.com", name: "A", roles: [role], is_active: true, tenant_id: "t1" };
 }
 
 function Wrapper({
@@ -14,7 +14,7 @@ function Wrapper({
   roles,
 }: {
   session: UserSession | null;
-  roles: UserSession["role"][];
+  roles: UserRole[];
 }) {
   return (
     <AuthContext.Provider value={{ session, isLoading: false, login: vi.fn(), logout: vi.fn() }}>

@@ -14,7 +14,7 @@ function TestConsumer() {
   if (isLoading) return <div>loading</div>;
   return (
     <div>
-      <span data-testid="name">{session?.full_name ?? "anon"}</span>
+      <span data-testid="name">{session?.name ?? "anon"}</span>
       <button onClick={() => void login("user@test.com", "secret")}>login</button>
       <button onClick={() => void logout()}>logout</button>
     </div>
@@ -35,14 +35,15 @@ describe("AuthProvider", () => {
   it("login bem-sucedido atualiza a sessão", async () => {
     server.use(
       http.post(`${BASE}/auth/login`, () =>
-        HttpResponse.json({ access_token: "tok", token_type: "bearer" }),
+        HttpResponse.json({ access_token: "tok", token_type: "bearer", expires_in: 900 }),
       ),
       http.get(`${BASE}/auth/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "user@test.com",
-          full_name: "Fulano",
-          role: "admin",
+          name: "Fulano",
+          roles: ["admin"],
+          is_active: true,
           tenant_id: "t1",
         }),
       ),
@@ -58,14 +59,15 @@ describe("AuthProvider", () => {
   it("logout limpa a sessão", async () => {
     server.use(
       http.post(`${BASE}/auth/login`, () =>
-        HttpResponse.json({ access_token: "tok", token_type: "bearer" }),
+        HttpResponse.json({ access_token: "tok", token_type: "bearer", expires_in: 900 }),
       ),
       http.get(`${BASE}/auth/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "user@test.com",
-          full_name: "Fulano",
-          role: "admin",
+          name: "Fulano",
+          roles: ["admin"],
+          is_active: true,
           tenant_id: "t1",
         }),
       ),
@@ -84,14 +86,15 @@ describe("AuthProvider", () => {
   it("disparo de auth:logout força logout", async () => {
     server.use(
       http.post(`${BASE}/auth/refresh`, () =>
-        HttpResponse.json({ access_token: "tok", token_type: "bearer" }),
+        HttpResponse.json({ access_token: "tok", token_type: "bearer", expires_in: 900 }),
       ),
       http.get(`${BASE}/auth/me`, () =>
         HttpResponse.json({
           id: "1",
           email: "user@test.com",
-          full_name: "Auto",
-          role: "technician",
+          name: "Auto",
+          roles: ["technician"],
+          is_active: true,
           tenant_id: "t1",
         }),
       ),

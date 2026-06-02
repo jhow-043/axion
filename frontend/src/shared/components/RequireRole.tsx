@@ -15,7 +15,7 @@ export function RequireRole({ roles, children, fallback }: RequireRoleProps) {
 
   if (!session) return <Navigate to="/login" replace />;
 
-  if (!hasRole(session.role, roles)) {
+  if (!hasRole(session.roles, roles)) {
     if (fallback !== undefined) return <>{fallback}</>;
     return <Navigate to="/sem-permissao" replace />;
   }

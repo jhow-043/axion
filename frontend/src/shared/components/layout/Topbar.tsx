@@ -18,7 +18,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 text-sm">
           <User className="h-4 w-4 text-muted-foreground" />
-          <span>{session?.full_name ?? "—"}</span>
+          <span>{session?.name ?? "—"}</span>
         </div>
         <Button
           variant="ghost"

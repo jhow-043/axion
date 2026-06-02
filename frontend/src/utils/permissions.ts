@@ -7,10 +7,10 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
   requester: 1,
 };
 
-export function hasRole(userRole: UserRole, requiredRoles: UserRole[]): boolean {
-  return requiredRoles.includes(userRole);
+export function hasRole(userRoles: string[], requiredRoles: UserRole[]): boolean {
+  return requiredRoles.some((r) => userRoles.includes(r));
 }
 
-export function hasMinRole(userRole: UserRole, minRole: UserRole): boolean {
-  return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[minRole];
+export function hasMinRole(userRoles: string[], minRole: UserRole): boolean {
+  return userRoles.some((r) => (ROLE_HIERARCHY[r as UserRole] ?? 0) >= ROLE_HIERARCHY[minRole]);
 }

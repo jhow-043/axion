@@ -15,7 +15,7 @@ export type UserRole = "admin" | "supervisor" | "technician" | "requester";
 export interface TokenPayload {
   sub: string;
   tenant_id: string;
-  role: UserRole;
+  roles: string[];
   exp: number;
   iat: number;
 }
@@ -23,12 +23,14 @@ export interface TokenPayload {
 export interface AuthTokens {
   access_token: string;
   token_type: "bearer";
+  expires_in: number;
 }
 
 export interface UserSession {
   id: string;
+  name: string;
   email: string;
-  full_name: string;
-  role: UserRole;
   tenant_id: string;
+  roles: string[];
+  is_active: boolean;
 }
