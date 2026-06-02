@@ -5,6 +5,7 @@ import { API_PREFIX } from "@/config/constants";
 let accessToken: string | null = null;
 let isRefreshing = false;
 let refreshSubscribers: Array<(token: string) => void> = [];
+let refreshRejecters: Array<(err: unknown) => void> = [];
 
 export function setAccessToken(token: string | null): void {
   accessToken = token;
@@ -14,17 +15,24 @@ export function getAccessToken(): string | null {
   return accessToken;
 }
 
-function subscribeTokenRefresh(cb: (token: string) => void): void {
-  refreshSubscribers.push(cb);
+function subscribeTokenRefresh(
+  resolve: (token: string) => void,
+  reject: (err: unknown) => void,
+): void {
+  refreshSubscribers.push(resolve);
+  refreshRejecters.push(reject);
 }
 
 function onTokenRefreshed(token: string): void {
   refreshSubscribers.forEach((cb) => cb(token));
   refreshSubscribers = [];
+  refreshRejecters = [];
 }
 
-function onRefreshFailed(): void {
+function onRefreshFailed(err: unknown): void {
+  refreshRejecters.forEach((cb) => cb(err));
   refreshSubscribers = [];
+  refreshRejecters = [];
 }
 
 export const apiClient = axios.create({
@@ -51,12 +59,13 @@ apiClient.interceptors.response.use(
 
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
-        subscribeTokenRefresh((token) => {
-          original.headers["Authorization"] = `Bearer ${token}`;
-          resolve(apiClient(original));
-        });
-        // rejected subscribers propagate when refresh fails
-        void reject;
+        subscribeTokenRefresh(
+          (token) => {
+            original.headers["Authorization"] = `Bearer ${token}`;
+            resolve(apiClient(original));
+          },
+          reject,
+        );
       });
     }
 
@@ -73,8 +82,8 @@ apiClient.interceptors.response.use(
       onTokenRefreshed(data.access_token);
       original.headers["Authorization"] = `Bearer ${data.access_token}`;
       return apiClient(original);
-    } catch {
-      onRefreshFailed();
+    } catch (err) {
+      onRefreshFailed(err);
       setAccessToken(null);
       // Notifica o AuthProvider para realizar logout
       window.dispatchEvent(new Event("auth:logout"));
