@@ -107,6 +107,13 @@ export const router = createBrowserRouter([
                 Component: m.EquipmentForm,
               })),
           },
+          {
+            path: "tickets/:id",
+            lazy: () =>
+              import("@/features/tickets/components/TicketDetail").then((m) => ({
+                Component: m.TicketDetail,
+              })),
+          },
         ],
       },
     ],
