@@ -18,6 +18,7 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.db.engine import dispose_engine, get_engine
+from app.modules.attachments.router import attachments_router, ticket_attachments_router
 from app.modules.auth.router import router as auth_router
 from app.modules.catalog.router import catalog_router
 from app.modules.equipments.router import router as equipments_router
@@ -85,6 +86,8 @@ def create_app() -> FastAPI:
     app.include_router(equipments_router, prefix="/api/v1")
     app.include_router(tickets_router, prefix="/api/v1")
     app.include_router(timeline_router, prefix="/api/v1")
+    app.include_router(ticket_attachments_router, prefix="/api/v1")
+    app.include_router(attachments_router, prefix="/api/v1")
 
     return app
 
