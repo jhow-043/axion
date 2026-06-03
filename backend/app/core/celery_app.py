@@ -8,7 +8,7 @@ celery_app = Celery(
     "manutencao",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=["app.modules.sla.tasks"],
+    include=["app.modules.sla.tasks", "app.modules.closures.tasks"],
 )
 
 celery_app.conf.update(
@@ -22,6 +22,10 @@ celery_app.conf.update(
         },
         "sla-alert-sweep": {
             "task": "app.modules.sla.tasks.alert_sweep",
+            "schedule": 300.0,
+        },
+        "auto-close-sweep": {
+            "task": "app.modules.closures.tasks.auto_close_sweep",
             "schedule": 300.0,
         },
     },
