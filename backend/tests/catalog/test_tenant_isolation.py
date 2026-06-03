@@ -165,9 +165,6 @@ class TestPendingReasonTenantIsolation:
 
         resp_a = await ca.get("/api/v1/catalog/pending-reasons")
         names_a = {r["name"] for r in resp_a.json()["items"]}
-        resp_b = await cb.get("/api/v1/catalog/pending-reasons")
-        names_b = {r["name"] for r in resp_b.json()["items"]}
-
         assert "Motivo de A" in names_a
         assert "Motivo de B" not in names_a
 

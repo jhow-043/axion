@@ -199,9 +199,7 @@ async def create_pending_reason(
     return await service.create(body)
 
 
-@catalog_router.patch(
-    "/pending-reasons/{reason_id}", response_model=PendingReasonResponse
-)
+@catalog_router.patch("/pending-reasons/{reason_id}", response_model=PendingReasonResponse)
 async def update_pending_reason(
     reason_id: UUID,
     body: PendingReasonUpdate,

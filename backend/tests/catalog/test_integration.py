@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 
-import pytest
 from httpx import AsyncClient
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,9 +34,7 @@ class TestCatalogSeed:
         await seed_catalog_defaults(db_session, seeded_tenant.id)
         await seed_catalog_defaults(db_session, seeded_tenant.id)
         stmt = (
-            select(func.count())
-            .select_from(Priority)
-            .where(Priority.tenant_id == seeded_tenant.id)
+            select(func.count()).select_from(Priority).where(Priority.tenant_id == seeded_tenant.id)
         )
         result = await db_session.execute(stmt)
         assert result.scalar_one() == 4
@@ -103,9 +100,7 @@ class TestPriorities:
             "/api/v1/catalog/priorities", json={"name": "Velha", "code": "old_p", "order": 20}
         )
         pid = cr.json()["id"]
-        resp = await admin_client.patch(
-            f"/api/v1/catalog/priorities/{pid}", json={"name": "Nova"}
-        )
+        resp = await admin_client.patch(f"/api/v1/catalog/priorities/{pid}", json={"name": "Nova"})
         assert resp.status_code == 200
         assert resp.json()["name"] == "Nova"
         assert resp.json()["code"] == "old_p"
@@ -258,9 +253,7 @@ class TestCategories:
         await admin_client.post("/api/v1/catalog/categories", json={"name": "Cat A"})
         cr = await admin_client.post("/api/v1/catalog/categories", json={"name": "Cat B"})
         cid = cr.json()["id"]
-        resp = await admin_client.patch(
-            f"/api/v1/catalog/categories/{cid}", json={"name": "Cat A"}
-        )
+        resp = await admin_client.patch(f"/api/v1/catalog/categories/{cid}", json={"name": "Cat A"})
         assert resp.status_code == 409
 
     async def test_admin_deactivates_category(self, admin_client: AsyncClient):

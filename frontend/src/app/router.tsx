@@ -79,6 +79,34 @@ export const router = createBrowserRouter([
                 Component: m.TeamForm,
               })),
           },
+          {
+            path: "equipments",
+            lazy: () =>
+              import("@/features/equipments/components/EquipmentList").then((m) => ({
+                Component: m.EquipmentList,
+              })),
+          },
+          {
+            path: "equipments/new",
+            lazy: () =>
+              import("@/features/equipments/components/EquipmentForm").then((m) => ({
+                Component: m.EquipmentForm,
+              })),
+          },
+          {
+            path: "equipments/:id",
+            lazy: () =>
+              import("@/features/equipments/components/EquipmentDetail").then((m) => ({
+                Component: m.EquipmentDetail,
+              })),
+          },
+          {
+            path: "equipments/:id/edit",
+            lazy: () =>
+              import("@/features/equipments/components/EquipmentForm").then((m) => ({
+                Component: m.EquipmentForm,
+              })),
+          },
         ],
       },
     ],
