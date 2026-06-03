@@ -32,6 +32,7 @@ from app.modules.tickets.models import (  # noqa: E402, F401
 )
 from app.modules.attachments.models import Attachment  # noqa: E402, F401
 from app.modules.timeline.models import TicketEvent  # noqa: E402, F401
+from app.modules.sla.models import SlaPolicy, SlaTracker, SlaPause  # noqa: E402, F401
 from app.shared.tenant_context import tenant_context  # noqa: E402
 
 

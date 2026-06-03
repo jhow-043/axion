@@ -17,6 +17,8 @@ from app.modules.catalog.repository import (
 from app.modules.equipments.repository import EquipmentRepository
 from app.modules.locations.repository import LocationRepository
 from app.modules.notifications.service import NotificationService
+from app.modules.sla.repository import SlaPauseRepository, SlaPolicyRepository, SlaTrackerRepository
+from app.modules.sla.service import SlaService
 from app.modules.tickets.repository import (
     SolutionRepository,
     TicketCommentRepository,
@@ -67,6 +69,13 @@ def _get_service(
             user_repo=UserRepository(db, tid),
         ),
         notification_svc=NotificationService(),
+        sla_svc=SlaService(
+            policy_repo=SlaPolicyRepository(db, tid),
+            tracker_repo=SlaTrackerRepository(db, tid),
+            pause_repo=SlaPauseRepository(db, tid),
+            ticket_repo=TicketRepository(db, tid),
+            notification_svc=NotificationService(),
+        ),
     )
 
 

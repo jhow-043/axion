@@ -13,6 +13,7 @@ from app.modules.catalog.repository import (
 from app.modules.equipments.repository import EquipmentRepository
 from app.modules.locations.repository import LocationRepository
 from app.modules.notifications.service import NotificationService
+from app.modules.sla.service import SlaService
 from app.modules.tickets.repository import (
     SolutionRepository,
     TicketCommentRepository,
@@ -65,6 +66,7 @@ class TicketService:
         user_repo: UserRepository,
         timeline_svc: TimelineService,
         notification_svc: NotificationService,
+        sla_svc: SlaService | None = None,
     ) -> None:
         self._tickets = ticket_repo
         self._observers = observer_repo
@@ -79,6 +81,7 @@ class TicketService:
         self._users = user_repo
         self._timeline = timeline_svc
         self._notifications = notification_svc
+        self._sla = sla_svc
 
     # ── Create ────────────────────────────────────────────────────────────────
 
@@ -129,11 +132,21 @@ class TicketService:
             ticket_id=ticket.id,
             actor_id=requester_id,
         )
+        if self._sla:
+            await self._sla.initialize_tracker(
+                ticket_id=ticket.id,
+                ticket_type=ticket.type,
+                priority_id=ticket.priority_id,
+                team_id=ticket.team_id,
+                created_at=ticket.created_at,
+            )
         return TicketResponse.model_validate(ticket)
 
     # ── Get / List ─────────────────────────────────────────────────────────────
 
-    async def get(self, ticket_id: UUID, current_user_id: UUID, role_codes: set[str]) -> TicketResponse:
+    async def get(
+        self, ticket_id: UUID, current_user_id: UUID, role_codes: set[str]
+    ) -> TicketResponse:
         ticket = await self._tickets.get(ticket_id)
         if ticket is None:
             raise NotFoundError("Chamado não encontrado.")
@@ -188,7 +201,9 @@ class TicketService:
 
     # ── Assign ─────────────────────────────────────────────────────────────────
 
-    async def assign(self, ticket_id: UUID, assignee_id: UUID, current_user_id: UUID) -> TicketResponse:
+    async def assign(
+        self, ticket_id: UUID, assignee_id: UUID, current_user_id: UUID
+    ) -> TicketResponse:
         ticket = await self._tickets.get(ticket_id)
         if ticket is None:
             raise NotFoundError("Chamado não encontrado.")
@@ -221,6 +236,8 @@ class TicketService:
             ticket_id=ticket_id,
             actor_id=current_user_id,
         )
+        if self._sla:
+            await self._sla.on_ticket_assigned(ticket_id=ticket_id, assigned_at=now)
         updated = await self._tickets.get(ticket_id)
         return TicketResponse.model_validate(updated)
 
@@ -286,6 +303,13 @@ class TicketService:
             ticket_id=ticket_id,
             actor_id=current_user_id,
         )
+        if self._sla:
+            if data.to_status == "pending":
+                await self._sla.on_ticket_pending(ticket_id=ticket_id, paused_at=now)
+            elif data.to_status == "in_progress" and current_status.code == "pending":
+                await self._sla.on_ticket_resumed(ticket_id=ticket_id, resumed_at=now)
+            elif data.to_status == "resolved":
+                await self._sla.on_ticket_resolved(ticket_id=ticket_id, resolved_at=now)
         updated = await self._tickets.get(ticket_id)
         return TicketResponse.model_validate(updated)
 
@@ -390,7 +414,7 @@ class TicketService:
         comment = await self._comments.find_editable(comment_id, author_id)
         if comment is None:
             raise BusinessRuleError(
-                "Comentário não encontrado, não pertence a você ou janela de edição expirou (15 min)."
+                "Comentário não encontrado, não pertence a você ou janela de edição expirou (15 min)."  # noqa: E501
             )
         if comment.ticket_id != ticket_id:
             raise NotFoundError("Comentário não pertence a este chamado.")
