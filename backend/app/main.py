@@ -21,6 +21,7 @@ from app.db.engine import dispose_engine, get_engine
 from app.modules.auth.router import router as auth_router
 from app.modules.catalog.router import catalog_router
 from app.modules.equipments.router import router as equipments_router
+from app.modules.tickets.router import router as tickets_router
 from app.modules.locations.router import locations_router, sectors_router
 from app.modules.teams.router import router as teams_router
 from app.modules.users.router import permissions_router, roles_router, users_router
@@ -81,6 +82,7 @@ def create_app() -> FastAPI:
     app.include_router(locations_router, prefix="/api/v1")
     app.include_router(catalog_router, prefix="/api/v1")
     app.include_router(equipments_router, prefix="/api/v1")
+    app.include_router(tickets_router, prefix="/api/v1")
 
     return app
 

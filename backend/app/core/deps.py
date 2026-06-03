@@ -90,6 +90,17 @@ def require_permission(permission_code: str) -> Callable:
     return _check
 
 
+async def get_current_role_codes(
+    current_user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[str]:
+    """Returns role codes for the current user — used for visibility scoping."""
+    from app.modules.auth.repository import UserAuthRepository
+
+    repo = UserAuthRepository(db)
+    return await repo.get_role_codes(current_user.id)
+
+
 def require_any_permission(*permission_codes: str) -> Callable:
     """Factory returning a dependency that passes if the user holds ANY of the given permissions."""
 
