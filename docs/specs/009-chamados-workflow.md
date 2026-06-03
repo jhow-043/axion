@@ -1,7 +1,7 @@
 ---
 id: P09
 slug: chamados-workflow
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04, P05, P06, P07, P08, P10, P14]
