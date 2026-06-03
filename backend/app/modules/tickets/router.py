@@ -14,6 +14,8 @@ from app.modules.catalog.repository import (
     PriorityRepository,
     StatusRepository,
 )
+from app.modules.closures.repository import TenantSettingsRepository, ValidationRepository
+from app.modules.closures.service import ClosureService
 from app.modules.equipments.repository import EquipmentRepository
 from app.modules.locations.repository import LocationRepository
 from app.modules.notifications.service import NotificationService
@@ -74,6 +76,21 @@ def _get_service(
             tracker_repo=SlaTrackerRepository(db, tid),
             pause_repo=SlaPauseRepository(db, tid),
             ticket_repo=TicketRepository(db, tid),
+            notification_svc=NotificationService(),
+        ),
+        closure_svc=ClosureService(
+            validation_repo=ValidationRepository(db, tid),
+            settings_repo=TenantSettingsRepository(db, tid),
+            ticket_repo=TicketRepository(db, tid),
+            solution_repo=SolutionRepository(db, tid),
+            status_repo=StatusRepository(db, tid),
+            user_repo=UserRepository(db, tid),
+            timeline_svc=TimelineService(
+                event_repo=TicketEventRepository(db, tid),
+                ticket_repo=TicketRepository(db, tid),
+                observer_repo=TicketObserverRepository(db, tid),
+                user_repo=UserRepository(db, tid),
+            ),
             notification_svc=NotificationService(),
         ),
     )

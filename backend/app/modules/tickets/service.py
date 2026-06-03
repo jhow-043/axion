@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from app.core.exceptions import BusinessRuleError, ForbiddenError, NotFoundError
@@ -35,6 +36,10 @@ from app.modules.tickets.schemas import (
 from app.modules.timeline.service import TimelineService
 from app.modules.users.repository import UserRepository
 
+if TYPE_CHECKING:
+    # Avoids circular import at runtime — closures.service imports tickets.repository
+    from app.modules.closures.service import ClosureService
+
 # INV-03: state machine transitions are invariant of code; catalog only controls labels (ADR-0003)
 _VALID_TRANSITIONS: dict[str, frozenset[str]] = {
     "new": frozenset({"in_progress"}),
@@ -67,6 +72,7 @@ class TicketService:
         timeline_svc: TimelineService,
         notification_svc: NotificationService,
         sla_svc: SlaService | None = None,
+        closure_svc: ClosureService | None = None,
     ) -> None:
         self._tickets = ticket_repo
         self._observers = observer_repo
@@ -82,6 +88,7 @@ class TicketService:
         self._timeline = timeline_svc
         self._notifications = notification_svc
         self._sla = sla_svc
+        self._closure = closure_svc
 
     # ── Create ────────────────────────────────────────────────────────────────
 
@@ -287,6 +294,11 @@ class TicketService:
                     "resolved_at": now,
                 }
             )
+            if self._closure:
+                await self._closure.create_validation(
+                    ticket_id=ticket_id,
+                    requester_id=ticket.requester_id,
+                )
 
         if data.to_status == "closed":
             changes["closed_at"] = now
