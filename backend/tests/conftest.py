@@ -24,7 +24,13 @@ from app.db.base import Base  # noqa: E402
 from app.modules.equipments.models import Equipment  # noqa: E402, F401
 from app.modules.locations.models import Location, Sector  # noqa: E402, F401
 from app.modules.teams.models import Team, TeamMember  # noqa: E402, F401
-from app.modules.tickets.models import Solution, Ticket, TicketComment, TicketObserver  # noqa: E402, F401
+from app.modules.tickets.models import (  # noqa: E402, F401
+    Solution,
+    Ticket,
+    TicketComment,
+    TicketObserver,
+)
+from app.modules.timeline.models import TicketEvent  # noqa: E402, F401
 from app.shared.tenant_context import tenant_context  # noqa: E402
 
 

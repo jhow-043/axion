@@ -36,6 +36,7 @@ from app.modules.tickets.schemas import (
     TicketTransition,
 )
 from app.modules.tickets.service import TicketService
+from app.modules.timeline.repository import TicketEventRepository
 from app.modules.timeline.service import TimelineService
 from app.modules.users.repository import UserRepository
 
@@ -59,7 +60,12 @@ def _get_service(
         equipment_repo=EquipmentRepository(db, tid),
         location_repo=LocationRepository(db, tid),
         user_repo=UserRepository(db, tid),
-        timeline_svc=TimelineService(),
+        timeline_svc=TimelineService(
+            event_repo=TicketEventRepository(db, tid),
+            ticket_repo=TicketRepository(db, tid),
+            observer_repo=TicketObserverRepository(db, tid),
+            user_repo=UserRepository(db, tid),
+        ),
         notification_svc=NotificationService(),
     )
 
@@ -127,7 +133,9 @@ async def assign_ticket(
     service: TicketService = Depends(_get_service),
     current_user=Depends(require_permission(TICKET_ASSIGN)),
 ) -> TicketResponse:
-    return await service.assign(ticket_id, assignee_id=current_user.id, current_user_id=current_user.id)
+    return await service.assign(
+        ticket_id, assignee_id=current_user.id, current_user_id=current_user.id
+    )
 
 
 @router.post("/{ticket_id}/transition", response_model=TicketResponse)
