@@ -12,7 +12,7 @@ class NotificationService:
         *,
         event_type: str,
         ticket_id: UUID,
-        actor_id: UUID,
+        actor_id: UUID | None,
         payload: dict | None = None,
     ) -> None:
         pass
