@@ -16,7 +16,7 @@ from app.modules.closures.schemas import (
     ValidationResponse,
 )
 from app.modules.closures.service import ClosureService
-from app.modules.notifications.service import NotificationService
+from app.modules.notifications.service import build_notification_service
 from app.modules.tickets.repository import (
     SolutionRepository,
     TicketObserverRepository,
@@ -48,7 +48,7 @@ def _get_service(
             observer_repo=TicketObserverRepository(db, tid),
             user_repo=UserRepository(db, tid),
         ),
-        notification_svc=NotificationService(),
+        notification_svc=build_notification_service(db, tid),
     )
 
 

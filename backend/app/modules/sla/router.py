@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user, get_db, require_permission
 from app.core.permissions import ADMIN_CONFIG, TICKET_READ
-from app.modules.notifications.service import NotificationService
+from app.modules.notifications.service import build_notification_service
 from app.modules.sla.repository import SlaPauseRepository, SlaPolicyRepository, SlaTrackerRepository
 from app.modules.sla.schemas import (
     SlaPolicyCreate,
@@ -33,11 +33,12 @@ def _get_service(
         tracker_repo=SlaTrackerRepository(db, tid),
         pause_repo=SlaPauseRepository(db, tid),
         ticket_repo=TicketRepository(db, tid),
-        notification_svc=NotificationService(),
+        notification_svc=build_notification_service(db, tid),
     )
 
 
 # ── Políticas ─────────────────────────────────────────────────────────────────
+
 
 @sla_router.get("/policies", response_model=SlaPolicyListResponse)
 async def list_policies(
@@ -87,6 +88,7 @@ async def deactivate_policy(
 
 
 # ── SLA do Chamado ─────────────────────────────────────────────────────────────
+
 
 @tickets_sla_router.get("/{ticket_id}/sla", response_model=SlaTicketResponse)
 async def get_ticket_sla(

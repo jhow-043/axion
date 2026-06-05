@@ -39,7 +39,7 @@ async def _get_active_tenant_ids() -> list[UUID]:
 
 async def _breach_sweep_async() -> None:
     from app.db.session import get_session_factory
-    from app.modules.notifications.service import NotificationService
+    from app.modules.notifications.service import build_notification_service
     from app.modules.sla.repository import (
         SlaPauseRepository,
         SlaPolicyRepository,
@@ -68,7 +68,7 @@ async def _breach_sweep_async() -> None:
                         observer_repo=TicketObserverRepository(session, tenant_id),
                         user_repo=UserRepository(session, tenant_id),
                     ),
-                    notification_svc=NotificationService(),
+                    notification_svc=build_notification_service(session, tenant_id),
                 )
                 try:
                     await svc.sweep_breaches()
@@ -80,7 +80,7 @@ async def _breach_sweep_async() -> None:
 
 async def _alert_sweep_async() -> None:
     from app.db.session import get_session_factory
-    from app.modules.notifications.service import NotificationService
+    from app.modules.notifications.service import build_notification_service
     from app.modules.sla.repository import (
         SlaPauseRepository,
         SlaPolicyRepository,
@@ -99,7 +99,7 @@ async def _alert_sweep_async() -> None:
                     tracker_repo=SlaTrackerRepository(session, tenant_id),
                     pause_repo=SlaPauseRepository(session, tenant_id),
                     ticket_repo=TicketRepository(session, tenant_id),
-                    notification_svc=NotificationService(),
+                    notification_svc=build_notification_service(session, tenant_id),
                 )
                 try:
                     await svc.sweep_alerts()

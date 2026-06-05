@@ -29,7 +29,7 @@ async def _auto_close_sweep_async() -> None:
     from app.modules.catalog.repository import StatusRepository
     from app.modules.closures.repository import TenantSettingsRepository, ValidationRepository
     from app.modules.closures.service import ClosureService
-    from app.modules.notifications.service import NotificationService
+    from app.modules.notifications.service import build_notification_service
     from app.modules.tickets.repository import (
         SolutionRepository,
         TicketObserverRepository,
@@ -58,7 +58,7 @@ async def _auto_close_sweep_async() -> None:
                         observer_repo=TicketObserverRepository(session, tenant_id),
                         user_repo=UserRepository(session, tenant_id),
                     ),
-                    notification_svc=NotificationService(),
+                    notification_svc=build_notification_service(session, tenant_id),
                 )
                 try:
                     await svc.sweep_auto_close()

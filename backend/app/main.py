@@ -25,6 +25,7 @@ from app.modules.closures.router import admin_router as closures_admin_router
 from app.modules.closures.router import tickets_closures_router
 from app.modules.equipments.router import router as equipments_router
 from app.modules.locations.router import locations_router, sectors_router
+from app.modules.notifications.router import notifications_router, ws_router
 from app.modules.sla.router import sla_router, tickets_sla_router
 from app.modules.teams.router import router as teams_router
 from app.modules.tickets.router import router as tickets_router
@@ -95,6 +96,8 @@ def create_app() -> FastAPI:
     app.include_router(tickets_sla_router, prefix="/api/v1")
     app.include_router(tickets_closures_router, prefix="/api/v1")
     app.include_router(closures_admin_router, prefix="/api/v1")
+    app.include_router(notifications_router, prefix="/api/v1")
+    app.include_router(ws_router)
 
     return app
 
