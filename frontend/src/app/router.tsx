@@ -128,6 +128,27 @@ export const router = createBrowserRouter([
                 "@/features/notifications/components/NotificationPreferences"
               ).then((m) => ({ Component: m.NotificationPreferences })),
           },
+          {
+            path: "dashboard/technician",
+            lazy: () =>
+              import(
+                "@/features/dashboards/components/TechnicianDashboard"
+              ).then((m) => ({ Component: m.TechnicianDashboard })),
+          },
+          {
+            path: "dashboard/supervisor",
+            lazy: () =>
+              import(
+                "@/features/dashboards/components/SupervisorDashboard"
+              ).then((m) => ({ Component: m.SupervisorDashboard })),
+          },
+          {
+            path: "dashboard/board",
+            lazy: () =>
+              import("@/features/dashboards/components/KanbanBoard").then(
+                (m) => ({ Component: m.KanbanBoard }),
+              ),
+          },
         ],
       },
     ],
