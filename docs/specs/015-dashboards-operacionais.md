@@ -1,14 +1,14 @@
 ---
 id: P15
 slug: dashboards-operacionais
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04, P09, P12]
 satisfies: [RF-150, RF-151]
 adrs: [ADR-0001, ADR-0002]
 branch: feature/015-dashboards-operacionais
-last_updated: 2026-06-01
+last_updated: 2026-06-05
 ---
 
 # P15 — Dashboards Operacionais (Técnico & Supervisor)
