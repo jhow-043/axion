@@ -1,7 +1,7 @@
 ---
 id: P14
 slug: notificacoes
-status: approved
+status: in-progress
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P02, P04, P09, P12, P13]

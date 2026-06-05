@@ -1,6 +1,7 @@
 import { Menu, LogOut, User } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useAuth } from "@/shared/hooks/useAuth";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -16,6 +17,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       </Button>
 
       <div className="flex items-center gap-3">
+        <NotificationBell />
         <div className="flex items-center gap-2 text-sm">
           <User className="h-4 w-4 text-muted-foreground" />
           <span>{session?.name ?? "—"}</span>

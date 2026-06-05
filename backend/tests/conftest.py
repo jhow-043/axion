@@ -21,8 +21,15 @@ from sqlalchemy.ext.asyncio import (  # noqa: E402
 
 from app.core.deps import get_db  # noqa: E402
 from app.db.base import Base  # noqa: E402
+from app.modules.attachments.models import Attachment  # noqa: E402, F401
+from app.modules.closures.models import TenantSettings, Validation  # noqa: E402, F401
 from app.modules.equipments.models import Equipment  # noqa: E402, F401
 from app.modules.locations.models import Location, Sector  # noqa: E402, F401
+from app.modules.notifications.models import (  # noqa: E402, F401
+    Notification,
+    NotificationPreference,
+)
+from app.modules.sla.models import SlaPause, SlaPolicy, SlaTracker  # noqa: E402, F401
 from app.modules.teams.models import Team, TeamMember  # noqa: E402, F401
 from app.modules.tickets.models import (  # noqa: E402, F401
     Solution,
@@ -30,10 +37,7 @@ from app.modules.tickets.models import (  # noqa: E402, F401
     TicketComment,
     TicketObserver,
 )
-from app.modules.attachments.models import Attachment  # noqa: E402, F401
 from app.modules.timeline.models import TicketEvent  # noqa: E402, F401
-from app.modules.sla.models import SlaPolicy, SlaTracker, SlaPause  # noqa: E402, F401
-from app.modules.closures.models import Validation, TenantSettings  # noqa: E402, F401
 from app.shared.tenant_context import tenant_context  # noqa: E402
 
 

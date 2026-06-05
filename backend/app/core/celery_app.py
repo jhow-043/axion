@@ -8,7 +8,11 @@ celery_app = Celery(
     "manutencao",
     broker=settings.CELERY_BROKER_URL,
     backend=settings.CELERY_RESULT_BACKEND,
-    include=["app.modules.sla.tasks", "app.modules.closures.tasks"],
+    include=[
+        "app.modules.sla.tasks",
+        "app.modules.closures.tasks",
+        "app.modules.notifications.tasks",
+    ],
 )
 
 celery_app.conf.update(

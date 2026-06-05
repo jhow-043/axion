@@ -114,6 +114,20 @@ export const router = createBrowserRouter([
                 Component: m.TicketDetail,
               })),
           },
+          {
+            path: "notifications",
+            lazy: () =>
+              import("@/features/notifications/components/NotificationList").then((m) => ({
+                Component: m.NotificationList,
+              })),
+          },
+          {
+            path: "notifications/preferences",
+            lazy: () =>
+              import(
+                "@/features/notifications/components/NotificationPreferences"
+              ).then((m) => ({ Component: m.NotificationPreferences })),
+          },
         ],
       },
     ],
