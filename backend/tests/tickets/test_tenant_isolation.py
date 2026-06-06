@@ -1,9 +1,9 @@
 """Tenant isolation tests — ticket from tenant A is invisible to tenant B."""
+
 from __future__ import annotations
 
 import uuid
 
-import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -67,9 +67,7 @@ def _make_client(db_session: AsyncSession, bearer: str) -> AsyncClient:
 
 
 class TestTicketTenantIsolation:
-    async def test_ticket_from_tenant_a_invisible_to_tenant_b(
-        self, db_session: AsyncSession
-    ):
+    async def test_ticket_from_tenant_a_invisible_to_tenant_b(self, db_session: AsyncSession):
         slug_a = f"iso-a-{uuid.uuid4().hex[:6]}"
         slug_b = f"iso-b-{uuid.uuid4().hex[:6]}"
         _, _, bearer_a, loc_a = await _setup_tenant(db_session, slug_a)
@@ -78,6 +76,7 @@ class TestTicketTenantIsolation:
         async with _make_client(db_session, bearer_a) as client_a:
             stmt = select(Role)
             from app.modules.catalog.models import Priority
+
             prio_stmt = select(Priority).where(Priority.code == "low")
             prio_result = await db_session.execute(prio_stmt)
             # get first priority matching tenant A
@@ -103,6 +102,7 @@ class TestTicketTenantIsolation:
             assert resp.status_code == 404
 
         from app.main import app
+
         app.dependency_overrides.pop(get_db, None)
 
     async def test_ticket_list_scoped_to_tenant(self, db_session: AsyncSession):
@@ -137,4 +137,5 @@ class TestTicketTenantIsolation:
             assert resp.json()["total"] == 0
 
         from app.main import app
+
         app.dependency_overrides.pop(get_db, None)

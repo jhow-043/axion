@@ -1,4 +1,5 @@
 """Tenant isolation tests for P13 — INV-01 and INV-02 compliance."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -98,7 +99,9 @@ class TestValidationTenantIsolation:
         user_b = await _mk_user(db_session, tenant_iso_b.id)
         status_b = await _mk_status(db_session, tenant_iso_b.id)
         priority_b = await _mk_priority(db_session, tenant_iso_b.id)
-        ticket_b = await _mk_ticket(db_session, tenant_iso_b.id, user_b.id, status_b.id, priority_b.id)
+        ticket_b = await _mk_ticket(
+            db_session, tenant_iso_b.id, user_b.id, status_b.id, priority_b.id
+        )
         val_b = await _mk_validation(db_session, tenant_iso_b.id, ticket_b.id, user_b.id)
 
         with tenant_context(tenant_iso_a.id):
@@ -113,7 +116,9 @@ class TestValidationTenantIsolation:
         user_b = await _mk_user(db_session, tenant_iso_b.id)
         status_b = await _mk_status(db_session, tenant_iso_b.id)
         priority_b = await _mk_priority(db_session, tenant_iso_b.id)
-        ticket_b = await _mk_ticket(db_session, tenant_iso_b.id, user_b.id, status_b.id, priority_b.id)
+        ticket_b = await _mk_ticket(
+            db_session, tenant_iso_b.id, user_b.id, status_b.id, priority_b.id
+        )
         await _mk_validation(db_session, tenant_iso_b.id, ticket_b.id, user_b.id)
 
         with tenant_context(tenant_iso_a.id):
@@ -128,7 +133,9 @@ class TestValidationTenantIsolation:
         user_b = await _mk_user(db_session, tenant_iso_b.id)
         status_b = await _mk_status(db_session, tenant_iso_b.id)
         priority_b = await _mk_priority(db_session, tenant_iso_b.id)
-        ticket_b = await _mk_ticket(db_session, tenant_iso_b.id, user_b.id, status_b.id, priority_b.id)
+        ticket_b = await _mk_ticket(
+            db_session, tenant_iso_b.id, user_b.id, status_b.id, priority_b.id
+        )
         val_b = await _mk_validation(
             db_session, tenant_iso_b.id, ticket_b.id, user_b.id, days_offset=-1
         )

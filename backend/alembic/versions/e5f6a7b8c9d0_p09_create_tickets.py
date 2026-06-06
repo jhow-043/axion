@@ -108,9 +108,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("ticket_id", name="uq_solutions_ticket"),
     )
-    op.create_index(
-        op.f("ix_solutions_tenant_id"), "solutions", ["tenant_id"], unique=False
-    )
+    op.create_index(op.f("ix_solutions_tenant_id"), "solutions", ["tenant_id"], unique=False)
 
 
 def downgrade() -> None:

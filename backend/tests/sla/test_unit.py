@@ -1,4 +1,5 @@
 """Unit tests for P12 SLA service — no DB, pure business logic."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -12,6 +13,7 @@ from app.modules.sla.service import SlaService, _elapsed_pct
 # Use naive datetimes throughout (consistent with SLA module's naive UTC pattern)
 
 # ── _elapsed_pct helper ────────────────────────────────────────────────────────
+
 
 def test_elapsed_pct_zero_at_start():
     now = datetime(2026, 1, 1, 10, 0)
@@ -35,6 +37,7 @@ def test_elapsed_pct_80_at_threshold():
 
 
 # ── Policy selection order ─────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def svc():
@@ -222,6 +225,7 @@ async def test_on_ticket_resolved_breached(svc):
 
 
 # ── Sweep idempotency ─────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_sweep_breaches_skips_already_breached(svc):

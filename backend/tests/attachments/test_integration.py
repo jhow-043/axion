@@ -145,8 +145,9 @@ async def test_delete_attachment_removes_record(
     requester_user: User,
     mock_storage,
 ):
-    from app.modules.attachments.models import Attachment as AttModel
     import uuid
+
+    from app.modules.attachments.models import Attachment as AttModel
 
     att = AttModel(
         tenant_id=seeded_tenant.id,
@@ -173,8 +174,9 @@ async def test_delete_by_admin_succeeds(
     sample_ticket: Ticket,
     requester_user: User,
 ):
-    from app.modules.attachments.models import Attachment as AttModel
     import uuid
+
+    from app.modules.attachments.models import Attachment as AttModel
 
     att = AttModel(
         tenant_id=seeded_tenant.id,

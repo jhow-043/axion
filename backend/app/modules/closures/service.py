@@ -130,9 +130,7 @@ class ClosureService:
             locked = await self._validations.get_with_lock(validation.id)
             if locked is None or locked.status != "pending":
                 continue
-            await self._close_ticket(
-                locked.ticket_id, locked.id, actor_id=None, method="auto"
-            )
+            await self._close_ticket(locked.ticket_id, locked.id, actor_id=None, method="auto")
 
     # ── Private helpers ───────────────────────────────────────────────────────
 
@@ -209,9 +207,11 @@ class ClosureService:
         if solution is None:
             return None
         resolver = await self._users.get(solution.resolved_by)
-        resolver_summary = UserSummary(
-            id=resolver.id, name=resolver.name
-        ) if resolver else UserSummary(id=solution.resolved_by, name="—")
+        resolver_summary = (
+            UserSummary(id=resolver.id, name=resolver.name)
+            if resolver
+            else UserSummary(id=solution.resolved_by, name="—")
+        )
         return SolutionSummary(
             description=solution.description,
             resolved_by=resolver_summary,

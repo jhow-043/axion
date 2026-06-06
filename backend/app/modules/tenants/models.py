@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -10,7 +10,7 @@ from app.db.base import Base
 
 
 def _utcnow() -> datetime:
-    return datetime.now(UTC)
+    return datetime.utcnow()
 
 
 class Tenant(Base):

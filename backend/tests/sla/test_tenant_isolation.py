@@ -1,4 +1,5 @@
 """Tenant isolation tests for P12 SLA — INV-01 + INV-02."""
+
 from __future__ import annotations
 
 import uuid

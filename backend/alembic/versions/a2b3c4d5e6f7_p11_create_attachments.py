@@ -37,12 +37,8 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("storage_key", name="uq_attachments_storage_key"),
     )
-    op.create_index(
-        op.f("ix_attachments_tenant_id"), "attachments", ["tenant_id"], unique=False
-    )
-    op.create_index(
-        op.f("ix_attachments_ticket_id"), "attachments", ["ticket_id"], unique=False
-    )
+    op.create_index(op.f("ix_attachments_tenant_id"), "attachments", ["tenant_id"], unique=False)
+    op.create_index(op.f("ix_attachments_ticket_id"), "attachments", ["ticket_id"], unique=False)
     op.create_index(
         "ix_attachments_tenant_ticket", "attachments", ["tenant_id", "ticket_id"], unique=False
     )

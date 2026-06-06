@@ -1,4 +1,5 @@
 """Unit tests for the ticket state machine and business rules (no DB)."""
+
 from __future__ import annotations
 
 from unittest.mock import AsyncMock
@@ -8,8 +9,7 @@ import pytest
 
 from app.core.exceptions import BusinessRuleError, ForbiddenError, NotFoundError
 from app.modules.tickets.schemas import TicketCommentCreate, TicketCreate, TicketTransition
-from app.modules.tickets.service import TicketService, _VALID_TRANSITIONS
-
+from app.modules.tickets.service import _VALID_TRANSITIONS, TicketService
 
 # ── State Machine ─────────────────────────────────────────────────────────────
 

@@ -48,7 +48,9 @@ def upgrade() -> None:
         sa.Column("auto_close_days", sa.Integer(), nullable=False, server_default="5"),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.Column("updated_by", sa.Uuid(), nullable=True),
-        sa.CheckConstraint("auto_close_days BETWEEN 1 AND 90", name="ck_tenant_settings_auto_close_days"),
+        sa.CheckConstraint(
+            "auto_close_days BETWEEN 1 AND 90", name="ck_tenant_settings_auto_close_days"
+        ),
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"]),
         sa.ForeignKeyConstraint(["updated_by"], ["users.id"]),
         sa.PrimaryKeyConstraint("id"),

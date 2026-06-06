@@ -1,5 +1,6 @@
 """Integration tests for P13 — Encerramento, Validação e Auto-Fechamento.
 Fixtures are defined inline; shared infra fixtures (db_session, async_client) from conftest.py."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -13,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import create_access_token, hash_password
 from app.modules.catalog.models import Priority, Status
 from app.modules.catalog.repository import StatusRepository
-from app.modules.closures.models import TenantSettings, Validation
+from app.modules.closures.models import Validation
 from app.modules.closures.repository import TenantSettingsRepository, ValidationRepository
 from app.modules.closures.service import ClosureService
 from app.modules.notifications.service import NotificationService
@@ -29,7 +30,6 @@ from app.modules.timeline.service import TimelineService
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
 from app.shared.tenant_context import tenant_context
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -88,7 +88,9 @@ async def cl_status_closed(db_session: AsyncSession, cl_tenant: Tenant) -> Statu
 
 @pytest.fixture
 async def cl_status_in_progress(db_session: AsyncSession, cl_tenant: Tenant) -> Status:
-    s = Status(id=uuid4(), tenant_id=cl_tenant.id, name="Em Atendimento", code="in_progress", order=2)
+    s = Status(
+        id=uuid4(), tenant_id=cl_tenant.id, name="Em Atendimento", code="in_progress", order=2
+    )
     db_session.add(s)
     await db_session.flush()
     return s
@@ -386,9 +388,7 @@ class TestAutoCloseSweep:
             svc = _svc(db_session, cl_tenant.id)
             await svc.sweep_auto_close()
 
-            val = await ValidationRepository(db_session, cl_tenant.id).get(
-                cl_expired_validation.id
-            )
+            val = await ValidationRepository(db_session, cl_tenant.id).get(cl_expired_validation.id)
             assert val.status == "approved"
 
             ticket = await TicketRepository(db_session, cl_tenant.id).get(cl_ticket.id)
@@ -409,7 +409,5 @@ class TestAutoCloseSweep:
             await svc.sweep_auto_close()
             await svc.sweep_auto_close()  # second sweep — no-op
 
-            val = await ValidationRepository(db_session, cl_tenant.id).get(
-                cl_expired_validation.id
-            )
+            val = await ValidationRepository(db_session, cl_tenant.id).get(cl_expired_validation.id)
             assert val.status == "approved"

@@ -44,7 +44,7 @@ def _get_location_service(
 @sectors_router.get("", response_model=SectorListResponse)
 async def list_sectors(
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
+    page_size: int = Query(default=20, ge=1, le=500),
     is_active: bool | None = Query(default=None),
     service: SectorService = Depends(_get_sector_service),
     _: object = Depends(require_any_permission(EQUIPMENT_READ, ADMIN_CONFIG)),
