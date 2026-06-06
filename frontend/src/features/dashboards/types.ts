@@ -78,3 +78,65 @@ export interface SupervisorFilters {
   date_from?: string;
   date_to?: string;
 }
+
+// ── P16 — Dashboard Gerencial ─────────────────────────────────────────────────
+
+export interface ManagementPeriod {
+  date_from: string;
+  date_to: string;
+}
+
+export interface ManagementSummary {
+  total_tickets: number;
+  open: number;
+  closed: number;
+  by_type: Record<string, number>;
+  by_priority: Record<string, number>;
+  avg_resolution_hours: number;
+}
+
+export interface ManagementSla {
+  attendance_compliance_pct: number;
+  resolution_compliance_pct: number;
+  breached_count: number;
+}
+
+export interface TopProblematicEquipment {
+  equipment_id: string;
+  name: string;
+  ticket_count: number;
+  critical_count: number;
+}
+
+export interface TeamPerformance {
+  team_id: string;
+  name: string;
+  total: number;
+  sla_compliance_pct: number;
+  avg_resolution_hours: number;
+}
+
+export interface ManagementDashboardResponse {
+  period: ManagementPeriod;
+  summary: ManagementSummary;
+  sla: ManagementSla;
+  top_problematic_equipments: TopProblematicEquipment[];
+  team_performance: TeamPerformance[];
+}
+
+export interface ManagementFilters {
+  date_from?: string;
+  date_to?: string;
+  team_id?: string;
+  priority_id?: string;
+  ticket_type?: string;
+}
+
+export interface ReportFilters {
+  date_from: string;
+  date_to: string;
+  team_id?: string;
+  priority_id?: string;
+  ticket_type?: string;
+  format?: "json" | "csv";
+}

@@ -1,4 +1,4 @@
-"""Unit tests for P15 — Dashboards Operacionais.
+"""Unit tests for P15 — Dashboards Operacionais and P16 — Dashboard Gerencial.
 
 Tests pure business logic without hitting the database."""
 
@@ -234,3 +234,130 @@ class TestSlaComplianceCalc:
 
         assert resp.sla_summary.attendance_compliance_pct == 75
         assert resp.sla_summary.resolution_compliance_pct == 50
+
+
+# ── P16 — _avg_hours ──────────────────────────────────────────────────────────
+
+
+class TestAvgHours:
+    def test_empty_returns_zero(self):
+        from app.modules.dashboards.service import _avg_hours
+
+        assert _avg_hours([]) == 0.0
+
+    def test_none_pairs_ignored(self):
+        from app.modules.dashboards.service import _avg_hours
+
+        assert _avg_hours([(None, None)]) == 0.0
+
+    def test_single_pair_2h(self):
+        from datetime import timedelta
+
+        from app.modules.dashboards.service import _avg_hours
+
+        t0 = datetime.utcnow()
+        t1 = t0 + timedelta(hours=2)
+        assert _avg_hours([(t0, t1)]) == 2.0
+
+    def test_average_of_two_pairs(self):
+        from datetime import timedelta
+
+        from app.modules.dashboards.service import _avg_hours
+
+        t0 = datetime.utcnow()
+        assert _avg_hours([(t0, t0 + timedelta(hours=1)), (t0, t0 + timedelta(hours=3))]) == 2.0
+
+    def test_strips_timezone(self):
+        from datetime import timezone, timedelta
+
+        from app.modules.dashboards.service import _avg_hours
+
+        t0 = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        t1 = t0 + timedelta(hours=4)
+        assert _avg_hours([(t0, t1)]) == 4.0
+
+
+# ── P16 — management dashboard access control ─────────────────────────────────
+
+
+class TestManagementDashboardAccess:
+    @pytest.mark.asyncio
+    async def test_technician_raises_forbidden(self):
+        from unittest.mock import AsyncMock
+
+        from app.core.exceptions import ForbiddenError
+        from app.modules.dashboards.service import DashboardService
+
+        repo = AsyncMock()
+        svc = DashboardService(dashboard_repo=repo)
+
+        with pytest.raises(ForbiddenError):
+            await svc.get_management_dashboard(
+                role_codes=["technician"],
+                date_from=datetime(2024, 1, 1),
+                date_to=datetime(2024, 1, 31),
+                team_id=None,
+                priority_id=None,
+                ticket_type=None,
+            )
+
+    @pytest.mark.asyncio
+    async def test_admin_succeeds_with_empty_data(self):
+        from unittest.mock import AsyncMock
+        from uuid import uuid4
+
+        from app.modules.dashboards.service import DashboardService
+
+        repo = AsyncMock()
+        repo.get_management_ticket_summary = AsyncMock(
+            return_value=(0, 0, 0, {}, {}, [])
+        )
+        repo.get_management_sla = AsyncMock(return_value=(100, 100, 0))
+        repo.get_top_problematic_equipments = AsyncMock(return_value=[])
+        repo.get_team_performance = AsyncMock(return_value=[])
+        svc = DashboardService(dashboard_repo=repo)
+
+        resp = await svc.get_management_dashboard(
+            role_codes=["admin"],
+            date_from=datetime(2024, 1, 1),
+            date_to=datetime(2024, 1, 31),
+            team_id=None,
+            priority_id=None,
+            ticket_type=None,
+        )
+
+        assert resp.summary.total_tickets == 0
+        assert resp.sla.breached_count == 0
+        assert resp.top_problematic_equipments == []
+        assert resp.team_performance == []
+
+    @pytest.mark.asyncio
+    async def test_sla_compliance_forwarded(self):
+        from unittest.mock import AsyncMock
+
+        from app.modules.dashboards.service import DashboardService
+
+        repo = AsyncMock()
+        repo.get_management_ticket_summary = AsyncMock(
+            return_value=(10, 5, 5, {"industrial": 10}, {"high": 10}, [])
+        )
+        repo.get_management_sla = AsyncMock(return_value=(80, 60, 3))
+        repo.get_top_problematic_equipments = AsyncMock(return_value=[])
+        repo.get_team_performance = AsyncMock(return_value=[])
+        svc = DashboardService(dashboard_repo=repo)
+
+        resp = await svc.get_management_dashboard(
+            role_codes=["admin"],
+            date_from=datetime(2024, 1, 1),
+            date_to=datetime(2024, 1, 31),
+            team_id=None,
+            priority_id=None,
+            ticket_type=None,
+        )
+
+        assert resp.sla.attendance_compliance_pct == 80
+        assert resp.sla.resolution_compliance_pct == 60
+        assert resp.sla.breached_count == 3
+        assert resp.summary.total_tickets == 10
+        assert resp.summary.open == 5
+        assert resp.summary.closed == 5

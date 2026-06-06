@@ -10,17 +10,35 @@ from app.modules.dashboards.schemas import (
     BoardColumn,
     BoardResponse,
     BoardTicketItem,
+    ManagementDashboardResponse,
+    ManagementPeriod,
+    ManagementSla,
+    ManagementSummary,
     SlaBreachedTicket,
     SlaRiskTicket,
     SlaSummary,
     SupervisorDashboardResponse,
+    TeamPerformance,
     TeamSlaStats,
     TechnicianDashboardResponse,
     TicketsSummary,
+    TopProblematicEquipment,
 )
 
 _SUPERVISOR_ROLES = frozenset({"admin", "supervisor"})
 
+
+def _avg_hours(pairs: list[tuple]) -> float:
+    """Average hours between (created_at, closed_at) pairs."""
+    valid = [(a, b) for a, b in pairs if a is not None and b is not None]
+    if not valid:
+        return 0.0
+
+    def _ts(dt: datetime) -> datetime:
+        return dt.replace(tzinfo=None) if dt.tzinfo is not None else dt
+
+    total_secs = sum((_ts(b) - _ts(a)).total_seconds() for a, b in valid)
+    return round(total_secs / len(valid) / 3600, 1)
 
 
 def _compute_sla_status(
@@ -185,6 +203,67 @@ class DashboardService:
             for s in statuses
         ]
         return BoardResponse(columns=columns)
+
+    async def get_management_dashboard(
+        self,
+        role_codes: list[str],
+        date_from: datetime,
+        date_to: datetime,
+        team_id: UUID | None,
+        priority_id: UUID | None,
+        ticket_type: str | None,
+    ) -> ManagementDashboardResponse:
+        if not any(r in _SUPERVISOR_ROLES for r in role_codes):
+            raise ForbiddenError("Acesso restrito a administradores e supervisores.")
+
+        total, open_cnt, closed_cnt, by_type, by_priority, closed_pairs = (
+            await self._repo.get_management_ticket_summary(
+                date_from, date_to, team_id, priority_id, ticket_type
+            )
+        )
+        att_pct, res_pct, breached_cnt = await self._repo.get_management_sla(
+            date_from, date_to, team_id
+        )
+        top_equips = await self._repo.get_top_problematic_equipments(
+            date_from, date_to, team_id, ticket_type
+        )
+        team_rows = await self._repo.get_team_performance(date_from, date_to, team_id)
+
+        return ManagementDashboardResponse(
+            period=ManagementPeriod(date_from=date_from, date_to=date_to),
+            summary=ManagementSummary(
+                total_tickets=total,
+                open=open_cnt,
+                closed=closed_cnt,
+                by_type=by_type,
+                by_priority=by_priority,
+                avg_resolution_hours=_avg_hours(closed_pairs),
+            ),
+            sla=ManagementSla(
+                attendance_compliance_pct=att_pct,
+                resolution_compliance_pct=res_pct,
+                breached_count=breached_cnt,
+            ),
+            top_problematic_equipments=[
+                TopProblematicEquipment(
+                    equipment_id=eid,
+                    name=name,
+                    ticket_count=total_c,
+                    critical_count=crit_c,
+                )
+                for eid, name, total_c, crit_c in top_equips
+            ],
+            team_performance=[
+                TeamPerformance(
+                    team_id=tid,
+                    name=tname,
+                    total=total_c,
+                    sla_compliance_pct=min(att_p, res_p),
+                    avg_resolution_hours=_avg_hours(pairs),
+                )
+                for tid, tname, total_c, pairs, att_p, res_p in team_rows
+            ],
+        )
 
     async def _resolve_team_scope(
         self,

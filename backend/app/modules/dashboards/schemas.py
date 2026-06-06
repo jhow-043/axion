@@ -72,3 +72,49 @@ class BoardColumn(BaseModel):
 
 class BoardResponse(BaseModel):
     columns: list[BoardColumn]
+
+
+# ── P16 — Dashboard Gerencial & Relatórios ────────────────────────────────────
+
+
+class ManagementPeriod(BaseModel):
+    date_from: datetime
+    date_to: datetime
+
+
+class ManagementSummary(BaseModel):
+    total_tickets: int
+    open: int
+    closed: int
+    by_type: dict[str, int]
+    by_priority: dict[str, int]
+    avg_resolution_hours: float
+
+
+class ManagementSla(BaseModel):
+    attendance_compliance_pct: int
+    resolution_compliance_pct: int
+    breached_count: int
+
+
+class TopProblematicEquipment(BaseModel):
+    equipment_id: UUID
+    name: str
+    ticket_count: int
+    critical_count: int
+
+
+class TeamPerformance(BaseModel):
+    team_id: UUID
+    name: str
+    total: int
+    sla_compliance_pct: int
+    avg_resolution_hours: float
+
+
+class ManagementDashboardResponse(BaseModel):
+    period: ManagementPeriod
+    summary: ManagementSummary
+    sla: ManagementSla
+    top_problematic_equipments: list[TopProblematicEquipment]
+    team_performance: list[TeamPerformance]
