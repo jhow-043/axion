@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.tenants.models import Tenant
 from app.modules.tickets.models import Ticket
-from app.modules.timeline.models import TicketEvent
 from app.modules.timeline.repository import TicketEventRepository
 from app.modules.users.models import User
 
@@ -197,9 +196,7 @@ async def test_timeline_no_edit_or_delete_endpoints(admin_client, sample_ticket:
     ticket_id = sample_ticket.id
     fake_event_id = "00000000-0000-0000-0000-000000000001"
 
-    delete_resp = await admin_client.delete(
-        f"/api/v1/tickets/{ticket_id}/timeline/{fake_event_id}"
-    )
+    delete_resp = await admin_client.delete(f"/api/v1/tickets/{ticket_id}/timeline/{fake_event_id}")
     assert delete_resp.status_code == 404
 
     patch_resp = await admin_client.patch(

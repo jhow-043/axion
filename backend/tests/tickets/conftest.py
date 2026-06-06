@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_db
 from app.core.security import create_access_token, hash_password
-from app.modules.catalog.models import Category, PendingReason, Priority, Status
+from app.modules.catalog.models import PendingReason, Priority, Status
 from app.modules.catalog.seed import seed_catalog_defaults
 from app.modules.locations.models import Location
 from app.modules.tenants.models import Tenant
@@ -95,9 +95,7 @@ async def requester_user(
     user = _make_user(seeded_tenant.id, "Requester", f"req-{uuid.uuid4().hex[:6]}@test.com")
     db_session.add(user)
     await db_session.flush()
-    db_session.add(
-        UserRole(tenant_id=seeded_tenant.id, user_id=user.id, role_id=requester_role.id)
-    )
+    db_session.add(UserRole(tenant_id=seeded_tenant.id, user_id=user.id, role_id=requester_role.id))
     await db_session.flush()
     return user
 
@@ -180,6 +178,7 @@ async def anon_client(db_session: AsyncSession):
     async with _make_client(db_session) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)
 
 
@@ -189,6 +188,7 @@ async def admin_client(db_session: AsyncSession, admin_user: User):
     async with _make_client(db_session, auth_header=bearer) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)
 
 
@@ -198,6 +198,7 @@ async def tech_client(db_session: AsyncSession, technician_user: User):
     async with _make_client(db_session, auth_header=bearer) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)
 
 
@@ -207,4 +208,5 @@ async def requester_client(db_session: AsyncSession, requester_user: User):
     async with _make_client(db_session, auth_header=bearer) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)

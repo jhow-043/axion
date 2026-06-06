@@ -84,6 +84,7 @@ async def test_record_event_allows_null_actor():
 @pytest.mark.asyncio
 async def test_list_events_returns_chronological_order():
     from datetime import UTC, datetime, timedelta
+
     from app.modules.timeline.models import TicketEvent
 
     base_time = datetime(2026, 6, 3, 10, 0, 0, tzinfo=UTC)
@@ -121,6 +122,7 @@ async def test_list_events_returns_chronological_order():
 @pytest.mark.asyncio
 async def test_list_events_enriches_actor_name():
     from datetime import UTC, datetime
+
     from app.modules.timeline.models import TicketEvent
 
     actor_id = uuid.uuid4()
@@ -159,6 +161,7 @@ async def test_list_events_enriches_actor_name():
 @pytest.mark.asyncio
 async def test_list_events_actor_none_shown_as_system():
     from datetime import UTC, datetime
+
     from app.modules.timeline.models import TicketEvent
 
     e = MagicMock(spec=TicketEvent)

@@ -106,6 +106,7 @@ class TicketService:
 
         if data.team_id:
             from app.modules.teams.repository import TeamRepository
+
             team_repo = TeamRepository(self._tickets.session, self._tickets.tenant_id)
             team = await team_repo.get(data.team_id)
             if team is None or not team.is_active:
@@ -345,9 +346,7 @@ class TicketService:
         if existing is not None:
             raise BusinessRuleError("Usuário já é observador deste chamado.")
 
-        observer = await self._observers.create(
-            {"ticket_id": ticket_id, "user_id": data.user_id}
-        )
+        observer = await self._observers.create({"ticket_id": ticket_id, "user_id": data.user_id})
         await self._timeline.record_event(
             event_type="observer_added",
             ticket_id=ticket_id,
@@ -484,9 +483,7 @@ class TicketService:
         """INV-03: raises if transition is not in the allowed set (ADR-0003)."""
         allowed = _VALID_TRANSITIONS.get(from_code, frozenset())
         if to_code not in allowed:
-            raise BusinessRuleError(
-                f"Transição de '{from_code}' para '{to_code}' não é permitida."
-            )
+            raise BusinessRuleError(f"Transição de '{from_code}' para '{to_code}' não é permitida.")
 
     async def _is_participant(self, ticket, user_id: UUID) -> bool:
         if ticket.requester_id == user_id or ticket.assignee_id == user_id:

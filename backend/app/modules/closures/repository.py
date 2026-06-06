@@ -29,11 +29,7 @@ class ValidationRepository(BaseRepository[Validation]):
 
     async def get_with_lock(self, id: UUID) -> Validation | None:
         """SELECT FOR UPDATE to prevent double-close race condition."""
-        stmt = (
-            self._base_query()
-            .where(Validation.id == id)
-            .with_for_update()
-        )
+        stmt = self._base_query().where(Validation.id == id).with_for_update()
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 

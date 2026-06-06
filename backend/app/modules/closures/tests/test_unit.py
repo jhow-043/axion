@@ -1,5 +1,6 @@
 """Unit tests for P13 — Encerramento, Validação e Auto-Fechamento.
 Each test covers a specific Critério de Aceite or business rule from the spec."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta

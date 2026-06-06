@@ -1,4 +1,5 @@
 """Integration tests for the tickets module — hit real (SQLite) DB via HTTP."""
+
 from __future__ import annotations
 
 import uuid
@@ -12,7 +13,6 @@ from app.modules.equipments.models import Equipment
 from app.modules.locations.models import Location, Sector
 from app.modules.tenants.models import Tenant
 from app.modules.users.models import User
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -41,9 +41,7 @@ def _industrial_payload(equipment_id: str, priority_id: str) -> dict:
 async def active_equipment(
     db_session: AsyncSession, seeded_tenant: Tenant, admin_user: User
 ) -> Equipment:
-    sector = Sector(
-        tenant_id=seeded_tenant.id, name=f"Mec {uuid.uuid4().hex[:4]}", is_active=True
-    )
+    sector = Sector(tenant_id=seeded_tenant.id, name=f"Mec {uuid.uuid4().hex[:4]}", is_active=True)
     db_session.add(sector)
     await db_session.flush()
     eq = Equipment(
@@ -339,9 +337,7 @@ class TestTransitionTicket:
             f"/api/v1/tickets/{tid}/transition",
             json={"to_status": "resolved", "solution_description": "Done."},
         )
-        await admin_client.post(
-            f"/api/v1/tickets/{tid}/transition", json={"to_status": "closed"}
-        )
+        await admin_client.post(f"/api/v1/tickets/{tid}/transition", json={"to_status": "closed"})
         resp = await admin_client.post(
             f"/api/v1/tickets/{tid}/transition", json={"to_status": "in_progress"}
         )

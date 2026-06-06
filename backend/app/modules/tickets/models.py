@@ -35,9 +35,7 @@ class Ticket(TenantMixin, Base):
     equipment_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("equipments.id"), nullable=True, index=True
     )
-    location_id: Mapped[uuid.UUID | None] = mapped_column(
-        ForeignKey("locations.id"), nullable=True
-    )
+    location_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("locations.id"), nullable=True)
     team_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("teams.id"), nullable=True, index=True
     )
@@ -48,7 +46,9 @@ class Ticket(TenantMixin, Base):
     assigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
     )
@@ -67,7 +67,9 @@ class TicketObserver(TenantMixin, Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     ticket_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tickets.id"), nullable=False)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    added_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
     __table_args__ = (
         UniqueConstraint("ticket_id", "user_id", name="uq_ticket_observers_ticket_user"),
@@ -83,7 +85,9 @@ class TicketComment(TenantMixin, Base):
     )
     author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
     )
@@ -98,4 +102,6 @@ class Solution(TenantMixin, Base):
     )
     description: Mapped[str] = mapped_column(Text, nullable=False)
     resolved_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
-    resolved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, nullable=False)
+    resolved_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )

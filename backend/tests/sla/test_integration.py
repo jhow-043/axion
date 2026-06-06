@@ -1,4 +1,5 @@
 """Integration tests for P12 SLA — rotas + banco."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -18,6 +19,7 @@ from app.modules.tickets.repository import TicketRepository
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _make_svc(db: AsyncSession, tenant_id) -> SlaService:
     return SlaService(
         policy_repo=SlaPolicyRepository(db, tenant_id),
@@ -36,6 +38,7 @@ async def _get_tracker(db: AsyncSession, ticket_id, tenant_id) -> SlaTracker | N
 
 
 # ── Policy API ────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_create_policy(
@@ -109,6 +112,7 @@ async def test_create_duplicate_policy_rejected(
 
 
 # ── SLA Lifecycle ─────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_initialize_tracker_on_creation(

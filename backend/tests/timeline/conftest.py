@@ -75,9 +75,7 @@ async def requester_user(
     user = _make_user(seeded_tenant.id, "Requester", f"req-{uuid.uuid4().hex[:6]}@tl.test")
     db_session.add(user)
     await db_session.flush()
-    db_session.add(
-        UserRole(tenant_id=seeded_tenant.id, user_id=user.id, role_id=requester_role.id)
-    )
+    db_session.add(UserRole(tenant_id=seeded_tenant.id, user_id=user.id, role_id=requester_role.id))
     await db_session.flush()
     return user
 
@@ -157,6 +155,7 @@ async def admin_client(db_session: AsyncSession, admin_user: User):
     async with _make_client(db_session, auth_header=bearer) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)
 
 
@@ -166,6 +165,7 @@ async def requester_client(db_session: AsyncSession, requester_user: User):
     async with _make_client(db_session, auth_header=bearer) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)
 
 
@@ -174,4 +174,5 @@ async def anon_client(db_session: AsyncSession):
     async with _make_client(db_session) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)

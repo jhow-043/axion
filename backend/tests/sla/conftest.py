@@ -35,18 +35,14 @@ async def seeded_tenant(db_session: AsyncSession, tenant: Tenant) -> Tenant:
 
 @pytest.fixture
 async def default_priority(db_session: AsyncSession, seeded_tenant: Tenant) -> Priority:
-    stmt = select(Priority).where(
-        Priority.tenant_id == seeded_tenant.id, Priority.code == "low"
-    )
+    stmt = select(Priority).where(Priority.tenant_id == seeded_tenant.id, Priority.code == "low")
     result = await db_session.execute(stmt)
     return result.scalar_one()
 
 
 @pytest.fixture
 async def high_priority(db_session: AsyncSession, seeded_tenant: Tenant) -> Priority:
-    stmt = select(Priority).where(
-        Priority.tenant_id == seeded_tenant.id, Priority.code == "high"
-    )
+    stmt = select(Priority).where(Priority.tenant_id == seeded_tenant.id, Priority.code == "high")
     result = await db_session.execute(stmt)
     return result.scalar_one()
 
@@ -118,4 +114,5 @@ async def admin_client(db_session: AsyncSession, admin_user: User) -> AsyncClien
     async with _make_client(db_session, auth_header=bearer) as client:
         yield client
     from app.main import app
+
     app.dependency_overrides.pop(get_db, None)

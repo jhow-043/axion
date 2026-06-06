@@ -17,10 +17,10 @@ from app.modules.timeline.repository import TicketEventRepository
 
 
 async def _create_tenant_with_ticket(db_session: AsyncSession, suffix: str):
+    from app.core.security import hash_password
     from app.modules.catalog.models import Priority, Status
     from app.modules.catalog.seed import seed_catalog_defaults
     from app.modules.users.models import User
-    from app.core.security import hash_password
 
     tenant = Tenant(name=f"Tenant {suffix}", slug=f"iso-tl-{suffix}-{uuid.uuid4().hex[:6]}")
     db_session.add(tenant)
@@ -30,6 +30,7 @@ async def _create_tenant_with_ticket(db_session: AsyncSession, suffix: str):
     await db_session.flush()
 
     from sqlalchemy import select
+
     priority = (
         await db_session.execute(
             select(Priority).where(Priority.tenant_id == tenant.id, Priority.code == "low")

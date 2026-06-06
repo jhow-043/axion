@@ -38,8 +38,18 @@ class TicketRepository(BaseRepository[Ticket]):
         stmt = self._base_query()
         stmt = self._apply_visibility(stmt, visibility, current_user_id, user_team_ids or [])
         stmt = self._apply_filters(
-            stmt, type, status_code, priority_id, team_id, assignee_id,
-            requester_id, equipment_id, location_id, search, created_from, created_to,
+            stmt,
+            type,
+            status_code,
+            priority_id,
+            team_id,
+            assignee_id,
+            requester_id,
+            equipment_id,
+            location_id,
+            search,
+            created_from,
+            created_to,
         )
         stmt = stmt.offset(offset).limit(limit).order_by(Ticket.created_at.desc())
         result = await self.session.execute(stmt)
@@ -66,21 +76,30 @@ class TicketRepository(BaseRepository[Ticket]):
         stmt = self._base_query()
         stmt = self._apply_visibility(stmt, visibility, current_user_id, user_team_ids or [])
         stmt = self._apply_filters(
-            stmt, type, status_code, priority_id, team_id, assignee_id,
-            requester_id, equipment_id, location_id, search, created_from, created_to,
+            stmt,
+            type,
+            status_code,
+            priority_id,
+            team_id,
+            assignee_id,
+            requester_id,
+            equipment_id,
+            location_id,
+            search,
+            created_from,
+            created_to,
         )
         count_stmt = select(func.count()).select_from(stmt.subquery())
         result = await self.session.execute(count_stmt)
         return result.scalar_one()
 
-    def _apply_visibility(self, stmt, visibility: str, current_user_id: UUID | None, user_team_ids: list[UUID]):
+    def _apply_visibility(
+        self, stmt, visibility: str, current_user_id: UUID | None, user_team_ids: list[UUID]
+    ):
         if visibility == "own" and current_user_id:
-            observer_subq = (
-                select(TicketObserver.ticket_id)
-                .where(
-                    TicketObserver.user_id == current_user_id,
-                    TicketObserver.tenant_id == self.tenant_id,
-                )
+            observer_subq = select(TicketObserver.ticket_id).where(
+                TicketObserver.user_id == current_user_id,
+                TicketObserver.tenant_id == self.tenant_id,
             )
             stmt = stmt.where(
                 or_(
@@ -96,13 +115,25 @@ class TicketRepository(BaseRepository[Ticket]):
         return stmt
 
     def _apply_filters(
-        self, stmt, type, status_code, priority_id, team_id, assignee_id,
-        requester_id, equipment_id, location_id, search, created_from, created_to,
+        self,
+        stmt,
+        type,
+        status_code,
+        priority_id,
+        team_id,
+        assignee_id,
+        requester_id,
+        equipment_id,
+        location_id,
+        search,
+        created_from,
+        created_to,
     ):
         if type:
             stmt = stmt.where(Ticket.type == type)
         if status_code:
             from app.modules.catalog.models import Status
+
             status_subq = (
                 select(Status.id)
                 .where(Status.code == status_code, Status.tenant_id == self.tenant_id)

@@ -47,7 +47,10 @@ def upgrade() -> None:
         "ix_ticket_events_tenant_ticket", "ticket_events", ["tenant_id", "ticket_id"], unique=False
     )
     op.create_index(
-        "ix_ticket_events_tenant_created", "ticket_events", ["tenant_id", "created_at"], unique=False
+        "ix_ticket_events_tenant_created",
+        "ticket_events",
+        ["tenant_id", "created_at"],
+        unique=False,
     )
 
 
