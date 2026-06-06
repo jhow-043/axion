@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from app.modules.audit.service import AuditService
 
 from app.core.exceptions import BusinessRuleError, NotFoundError
 from app.modules.notifications.service import NotificationService
@@ -31,6 +35,8 @@ class SlaService:
         ticket_repo: TicketRepository,
         timeline_svc: TimelineService | None = None,
         notification_svc: NotificationService | None = None,
+        audit_svc: AuditService | None = None,
+        actor_id: UUID | None = None,
     ) -> None:
         self._policies = policy_repo
         self._trackers = tracker_repo
@@ -38,6 +44,8 @@ class SlaService:
         self._tickets = ticket_repo
         self._timeline = timeline_svc
         self._notifications = notification_svc
+        self._audit = audit_svc
+        self._actor_id = actor_id
 
     # ── Policy CRUD ───────────────────────────────────────────────────────────────
 
@@ -52,6 +60,14 @@ class SlaService:
                 "Já existe uma política ativa com este tipo de chamado, prioridade e equipe."
             )
         policy = await self._policies.create(data.model_dump())
+        if self._audit:
+            await self._audit.log(
+                action="sla_policy.created",
+                entity_type="SlaPolicy",
+                entity_id=policy.id,
+                actor_id=self._actor_id,
+                after=data.model_dump(mode="json"),
+            )
         return SlaPolicyResponse.model_validate(policy)
 
     async def list_policies(self, *, page: int, page_size: int) -> SlaPolicyListResponse:
@@ -75,15 +91,37 @@ class SlaService:
         policy = await self._policies.get(policy_id)
         if policy is None:
             raise NotFoundError("Política de SLA não encontrada.")
+        before_snapshot = SlaPolicyResponse.model_validate(policy).model_dump(mode="json")
         updates = data.model_dump(exclude_unset=True)
         updated = await self._policies.update(policy_id, updates)
+        if self._audit:
+            after_snapshot = SlaPolicyResponse.model_validate(updated).model_dump(mode="json")
+            await self._audit.log(
+                action="sla_policy.updated",
+                entity_type="SlaPolicy",
+                entity_id=policy_id,
+                actor_id=self._actor_id,
+                before=before_snapshot,
+                after=after_snapshot,
+            )
         return SlaPolicyResponse.model_validate(updated)
 
     async def deactivate_policy(self, policy_id: UUID) -> SlaPolicyResponse:
         policy = await self._policies.get(policy_id)
         if policy is None:
             raise NotFoundError("Política de SLA não encontrada.")
+        before_snapshot = SlaPolicyResponse.model_validate(policy).model_dump(mode="json")
         updated = await self._policies.update(policy_id, {"is_active": False})
+        if self._audit:
+            after_snapshot = SlaPolicyResponse.model_validate(updated).model_dump(mode="json")
+            await self._audit.log(
+                action="sla_policy.deactivated",
+                entity_type="SlaPolicy",
+                entity_id=policy_id,
+                actor_id=self._actor_id,
+                before=before_snapshot,
+                after=after_snapshot,
+            )
         return SlaPolicyResponse.model_validate(updated)
 
     # ── SLA Lifecycle ─────────────────────────────────────────────────────────────

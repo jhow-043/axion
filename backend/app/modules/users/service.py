@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
@@ -20,6 +21,9 @@ from app.modules.users.schemas import (
     UserUpdate,
 )
 
+if TYPE_CHECKING:
+    from app.modules.audit.service import AuditService
+
 
 class UserService:
     def __init__(
@@ -28,11 +32,15 @@ class UserService:
         role_repo: RoleRepository,
         user_role_repo: UserRoleRepository,
         permission_repo: PermissionRepository,
+        audit_svc: AuditService | None = None,
+        actor_id: UUID | None = None,
     ) -> None:
         self._users = user_repo
         self._roles = role_repo
         self._user_roles = user_role_repo
         self._permissions = permission_repo
+        self._audit = audit_svc
+        self._actor_id = actor_id
 
     async def create_user(self, data: UserCreate) -> UserResponse:
         existing = await self._users.find_by_email(data.email)
@@ -46,6 +54,15 @@ class UserService:
                 "password_hash": hash_password(data.password),
             }
         )
+        if self._audit:
+            # Exclude password_hash from audit log — sensitive field
+            await self._audit.log(
+                action="user.created",
+                entity_type="User",
+                entity_id=user.id,
+                actor_id=self._actor_id,
+                after={"name": user.name, "email": user.email, "is_active": user.is_active},
+            )
         return _to_response(user)
 
     async def get_user(self, user_id: UUID) -> UserResponse:
@@ -107,8 +124,19 @@ class UserService:
         user = await self._users.get(user_id)
         if user is None:
             raise NotFoundError("Usuário não encontrado.")
+        before = {"name": user.name, "email": user.email, "is_active": user.is_active}
         await self._users.update(user_id, {"is_active": True})
-        return await self.get_user(user_id)
+        result = await self.get_user(user_id)
+        if self._audit:
+            await self._audit.log(
+                action="user.activated",
+                entity_type="User",
+                entity_id=user_id,
+                actor_id=self._actor_id,
+                before=before,
+                after={"name": result.name, "email": result.email, "is_active": result.is_active},
+            )
+        return result
 
     async def deactivate(self, user_id: UUID) -> UserResponse:
         user = await self._users.get(user_id)
@@ -123,8 +151,19 @@ class UserService:
                 raise BusinessRuleError(
                     "Não é possível desativar o único administrador ativo do tenant."
                 )
+        before = {"name": user.name, "email": user.email, "is_active": user.is_active}
         await self._users.update(user_id, {"is_active": False})
-        return await self.get_user(user_id)
+        result = await self.get_user(user_id)
+        if self._audit:
+            await self._audit.log(
+                action="user.deactivated",
+                entity_type="User",
+                entity_id=user_id,
+                actor_id=self._actor_id,
+                before=before,
+                after={"name": result.name, "email": result.email, "is_active": result.is_active},
+            )
+        return result
 
     async def list_user_roles(self, user_id: UUID) -> list[RoleResponse]:
         if await self._users.get(user_id) is None:

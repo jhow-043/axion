@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user, get_db, require_permission
 from app.core.permissions import ADMIN_CONFIG, TICKET_READ
+from app.modules.audit.service import build_audit_service
 from app.modules.notifications.service import build_notification_service
 from app.modules.sla.repository import SlaPauseRepository, SlaPolicyRepository, SlaTrackerRepository
 from app.modules.sla.schemas import (
@@ -34,6 +35,8 @@ def _get_service(
         pause_repo=SlaPauseRepository(db, tid),
         ticket_repo=TicketRepository(db, tid),
         notification_svc=build_notification_service(db, tid),
+        audit_svc=build_audit_service(db, tid),
+        actor_id=current_user.id,
     )
 
 
