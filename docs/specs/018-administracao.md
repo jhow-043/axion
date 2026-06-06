@@ -1,7 +1,7 @@
 ---
 id: P18
 slug: administracao
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P04, P05, P06, P07, P12, P14]

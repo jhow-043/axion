@@ -163,6 +163,78 @@ export const router = createBrowserRouter([
                 (m) => ({ Component: m.Reports }),
               ),
           },
+          {
+            path: "administracao",
+            lazy: () =>
+              import("@/features/administration/components/AdminConsole").then((m) => ({
+                Component: m.AdminConsole,
+              })),
+            children: [
+              {
+                path: "empresa",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/CompanySection"
+                  ).then((m) => ({ Component: m.CompanySection })),
+              },
+              {
+                path: "usuarios",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/UsersSection"
+                  ).then((m) => ({ Component: m.UsersSection })),
+              },
+              {
+                path: "equipes",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/TeamsSection"
+                  ).then((m) => ({ Component: m.TeamsSection })),
+              },
+              {
+                path: "setores",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/SetoresSection"
+                  ).then((m) => ({ Component: m.SetoresSection })),
+              },
+              {
+                path: "catalogos",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/CatalogosSection"
+                  ).then((m) => ({ Component: m.CatalogosSection })),
+              },
+              {
+                path: "sla",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/SlaSection"
+                  ).then((m) => ({ Component: m.SlaSection })),
+              },
+              {
+                path: "notificacoes",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/NotificacoesSection"
+                  ).then((m) => ({ Component: m.NotificacoesSection })),
+              },
+              {
+                path: "auditoria",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/AuditSection"
+                  ).then((m) => ({ Component: m.AuditSection })),
+              },
+              {
+                path: "tenants",
+                lazy: () =>
+                  import(
+                    "@/features/administration/components/sections/TenantsSection"
+                  ).then((m) => ({ Component: m.TenantsSection })),
+              },
+            ],
+          },
         ],
       },
     ],
