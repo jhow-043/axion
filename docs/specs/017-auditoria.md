@@ -1,7 +1,7 @@
 ---
 id: P17
 slug: auditoria
-status: approved
+status: in-review
 version: 1.0.0
 owner: jhowworks
 depends_on: [P00, P01, P04]

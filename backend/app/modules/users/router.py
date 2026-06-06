@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user, get_db, require_permission
 from app.core.permissions import USER_MANAGE, USER_READ
+from app.modules.audit.service import build_audit_service
 from app.modules.users.repository import (
     PermissionRepository,
     RoleRepository,
@@ -33,13 +34,14 @@ def _get_service(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ) -> UserService:
-    # tenant_id comes from current_user so get_current_user is guaranteed to have run first
     tenant_id = current_user.tenant_id
     return UserService(
         user_repo=UserRepository(db, tenant_id),
         role_repo=RoleRepository(db, tenant_id),
         user_role_repo=UserRoleRepository(db, tenant_id),
         permission_repo=PermissionRepository(db),
+        audit_svc=build_audit_service(db, tenant_id),
+        actor_id=current_user.id,
     )
 
 
