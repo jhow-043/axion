@@ -6,22 +6,26 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.deps import (
     get_current_role_codes,
     get_current_user,
     get_db,
     require_permission,
 )
-from app.core.permissions import DASHBOARD_OPERATIONAL
+from app.core.permissions import DASHBOARD_MANAGEMENT, DASHBOARD_OPERATIONAL
 from app.modules.dashboards.repository import DashboardRepository
 from app.modules.dashboards.schemas import (
     BoardResponse,
+    ManagementDashboardResponse,
     SupervisorDashboardResponse,
     TechnicianDashboardResponse,
 )
 from app.modules.dashboards.service import DashboardService
 
 router = APIRouter(prefix="/dashboards", tags=["dashboards"])
+
+_DEFAULT_PERIOD_DAYS = settings.REPORT_MAX_PERIOD_DAYS
 
 
 def _get_service(
@@ -80,3 +84,25 @@ async def get_board(
     )
 
 
+@router.get("/management", response_model=ManagementDashboardResponse)
+async def get_management_dashboard(
+    date_from: datetime | None = Query(default=None),
+    date_to: datetime | None = Query(default=None),
+    team_id: UUID | None = Query(default=None),
+    priority_id: UUID | None = Query(default=None),
+    ticket_type: str | None = Query(default=None),
+    service: DashboardService = Depends(_get_service),
+    role_codes: list[str] = Depends(get_current_role_codes),
+    _: None = Depends(require_permission(DASHBOARD_MANAGEMENT)),
+) -> ManagementDashboardResponse:
+    now = datetime.utcnow()
+    resolved_from = date_from or datetime(now.year, now.month, 1)
+    resolved_to = date_to or now
+    return await service.get_management_dashboard(
+        role_codes=role_codes,
+        date_from=resolved_from,
+        date_to=resolved_to,
+        team_id=team_id,
+        priority_id=priority_id,
+        ticket_type=ticket_type,
+    )

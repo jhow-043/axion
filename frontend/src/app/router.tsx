@@ -149,6 +149,20 @@ export const router = createBrowserRouter([
                 (m) => ({ Component: m.KanbanBoard }),
               ),
           },
+          {
+            path: "dashboard/management",
+            lazy: () =>
+              import(
+                "@/features/dashboards/components/ManagementDashboard"
+              ).then((m) => ({ Component: m.ManagementDashboard })),
+          },
+          {
+            path: "relatorios",
+            lazy: () =>
+              import("@/features/dashboards/components/Reports").then(
+                (m) => ({ Component: m.Reports }),
+              ),
+          },
         ],
       },
     ],

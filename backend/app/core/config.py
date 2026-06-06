@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -44,9 +44,9 @@ class Settings(BaseSettings):
         "video/mp4",
         "video/quicktime",
     ]
-    ATTACHMENT_MAX_IMAGE_BYTES: int = 10 * 1024 * 1024   # 10 MB
+    ATTACHMENT_MAX_IMAGE_BYTES: int = 10 * 1024 * 1024  # 10 MB
     ATTACHMENT_MAX_VIDEO_BYTES: int = 200 * 1024 * 1024  # 200 MB
-    ATTACHMENT_UPLOAD_EXPIRE_SECONDS: int = 300   # 5 min
+    ATTACHMENT_UPLOAD_EXPIRE_SECONDS: int = 300  # 5 min
     ATTACHMENT_DOWNLOAD_EXPIRE_SECONDS: int = 3600  # 60 min
 
     # Email (SMTP)
@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None = None
     SMTP_FROM: str = "noreply@manutencao.local"
 
+    # Reports (P16)
+    REPORT_MAX_PERIOD_DAYS: int = 366
+
+    # Reports (P16)
+    REPORT_MAX_PERIOD_DAYS: int = 366
+
 
 settings = Settings()
-

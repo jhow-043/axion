@@ -232,3 +232,129 @@ async def test_supervisor_dashboard_isolates_tenants(
     data = resp.json()
     # Admin A sees only 2 tickets (their tenant's)
     assert data["summary"]["total_open"] == 2
+
+
+# ── P16 — /dashboards/management tenant isolation ─────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_management_dashboard_tenant_isolation(
+    db_session: AsyncSession, seeded_a: Tenant, seeded_b: Tenant
+):
+    """Admin A cannot see Tenant B tickets in /dashboards/management."""
+    admin_a = await _make_admin(db_session, seeded_a)
+    admin_b = await _make_admin(db_session, seeded_b)
+
+    stmt_a = select(Priority).where(Priority.tenant_id == seeded_a.id, Priority.code == "low")
+    prio_a = (await db_session.execute(stmt_a)).scalar_one()
+    stmt_sa = select(Status).where(Status.tenant_id == seeded_a.id, Status.code == "new")
+    status_a = (await db_session.execute(stmt_sa)).scalar_one()
+
+    stmt_b = select(Priority).where(Priority.tenant_id == seeded_b.id, Priority.code == "low")
+    prio_b = (await db_session.execute(stmt_b)).scalar_one()
+    stmt_sb = select(Status).where(Status.tenant_id == seeded_b.id, Status.code == "new")
+    status_b = (await db_session.execute(stmt_sb)).scalar_one()
+
+    for _ in range(2):
+        db_session.add(
+            Ticket(
+                tenant_id=seeded_a.id,
+                type="predial",
+                title="Ticket A",
+                description="Desc",
+                priority_id=prio_a.id,
+                status_id=status_a.id,
+                requester_id=admin_a.id,
+            )
+        )
+    for _ in range(5):
+        db_session.add(
+            Ticket(
+                tenant_id=seeded_b.id,
+                type="predial",
+                title="Ticket B",
+                description="Desc",
+                priority_id=prio_b.id,
+                status_id=status_b.id,
+                requester_id=admin_b.id,
+            )
+        )
+    await db_session.flush()
+
+    token_a = _admin_token(admin_a)
+    async with _make_client(db_session, token_a) as client_a:
+        resp = await client_a.get(
+            "/api/v1/dashboards/management?date_from=2026-01-01T00:00:00&date_to=2026-12-31T23:59:59"
+        )
+
+    from app.main import app
+
+    app.dependency_overrides.pop(get_db, None)
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["summary"]["total_tickets"] == 2
+
+
+# ── P16 — /reports/tickets tenant isolation ───────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_reports_tickets_tenant_isolation(
+    db_session: AsyncSession, seeded_a: Tenant, seeded_b: Tenant
+):
+    """Admin A's reports show only Tenant A data."""
+    from datetime import datetime, timedelta
+
+    admin_a = await _make_admin(db_session, seeded_a)
+    admin_b = await _make_admin(db_session, seeded_b)
+
+    stmt_a = select(Priority).where(Priority.tenant_id == seeded_a.id, Priority.code == "low")
+    prio_a = (await db_session.execute(stmt_a)).scalar_one()
+    stmt_sa = select(Status).where(Status.tenant_id == seeded_a.id, Status.code == "new")
+    status_a = (await db_session.execute(stmt_sa)).scalar_one()
+
+    stmt_b = select(Priority).where(Priority.tenant_id == seeded_b.id, Priority.code == "low")
+    prio_b = (await db_session.execute(stmt_b)).scalar_one()
+    stmt_sb = select(Status).where(Status.tenant_id == seeded_b.id, Status.code == "new")
+    status_b = (await db_session.execute(stmt_sb)).scalar_one()
+
+    for _ in range(3):
+        db_session.add(
+            Ticket(
+                tenant_id=seeded_a.id,
+                type="industrial",
+                title="A",
+                description="Desc",
+                priority_id=prio_a.id,
+                status_id=status_a.id,
+                requester_id=admin_a.id,
+            )
+        )
+    for _ in range(7):
+        db_session.add(
+            Ticket(
+                tenant_id=seeded_b.id,
+                type="predial",
+                title="B",
+                description="Desc",
+                priority_id=prio_b.id,
+                status_id=status_b.id,
+                requester_id=admin_b.id,
+            )
+        )
+    await db_session.flush()
+
+    token_a = _admin_token(admin_a)
+    async with _make_client(db_session, token_a) as client_a:
+        resp = await client_a.get(
+            "/api/v1/reports/tickets?date_from=2026-01-01T00:00:00&date_to=2026-12-31T23:59:59"
+        )
+
+    from app.main import app
+
+    app.dependency_overrides.pop(get_db, None)
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) == 3

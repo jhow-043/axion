@@ -337,3 +337,207 @@ async def test_board_filter_by_team(
 async def test_technician_cannot_access_board(tech_client: AsyncClient):
     resp = await tech_client.get("/api/v1/dashboards/board")
     assert resp.status_code == 403
+
+
+# ── P16 — GET /dashboards/management ─────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_management_dashboard_returns_indicators(
+    admin_client: AsyncClient,
+    db_session: AsyncSession,
+    seeded_tenant: Tenant,
+    admin_user: User,
+    default_priority: Priority,
+    status_new: Status,
+    team: Team,
+):
+    from datetime import datetime, timedelta
+
+    from sqlalchemy import select
+
+    from app.modules.catalog.models import Status as St
+
+    now = datetime.utcnow()
+    result = await db_session.execute(
+        select(St).where(St.tenant_id == seeded_tenant.id, St.code == "closed")
+    )
+    closed_st = result.scalar_one()
+
+    for i in range(3):
+        t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id, title=f"T{i}")
+        db_session.add(t)
+    t_closed = _ticket(seeded_tenant.id, closed_st.id, default_priority.id, admin_user.id, team_id=team.id, title="Fechado")
+    t_closed.closed_at = now - timedelta(hours=2)
+    db_session.add(t_closed)
+    await db_session.flush()
+
+    # Use no date filter — router defaults to current month, which covers just-created tickets
+    resp = await admin_client.get("/api/v1/dashboards/management")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert "summary" in body
+    assert "sla" in body
+    assert "top_problematic_equipments" in body
+    assert "team_performance" in body
+    assert body["summary"]["total_tickets"] >= 4
+
+
+@pytest.mark.asyncio
+async def test_management_dashboard_technician_returns_403(tech_client: AsyncClient):
+    resp = await tech_client.get("/api/v1/dashboards/management")
+    assert resp.status_code == 403
+
+
+# ── P16 — GET /reports/* ──────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_report_tickets_json(
+    admin_client: AsyncClient,
+    db_session: AsyncSession,
+    seeded_tenant: Tenant,
+    admin_user: User,
+    default_priority: "Priority",
+    status_new: "Status",
+    team: "Team",
+):
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id)
+    db_session.add(t)
+    await db_session.flush()
+
+    date_from = "2026-01-01T00:00:00"
+    date_to = "2026-12-31T23:59:59"
+    resp = await admin_client.get(
+        f"/api/v1/reports/tickets?date_from={date_from}&date_to={date_to}"
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, list)
+    assert len(data) >= 1
+    assert "id" in data[0]
+    assert "priority" in data[0]
+
+
+@pytest.mark.asyncio
+async def test_report_tickets_csv(
+    admin_client: AsyncClient,
+    db_session: AsyncSession,
+    seeded_tenant: Tenant,
+    admin_user: User,
+    default_priority: "Priority",
+    status_new: "Status",
+    team: "Team",
+):
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id)
+    db_session.add(t)
+    await db_session.flush()
+
+    date_from = "2026-01-01T00:00:00"
+    date_to = "2026-12-31T23:59:59"
+    resp = await admin_client.get(
+        f"/api/v1/reports/tickets?date_from={date_from}&date_to={date_to}&format=csv"
+    )
+    assert resp.status_code == 200
+    assert "text/csv" in resp.headers["content-type"]
+    assert "attachment" in resp.headers["content-disposition"]
+    content = resp.text
+    assert "id" in content.splitlines()[0]
+
+
+@pytest.mark.asyncio
+async def test_report_tickets_missing_period_returns_422(admin_client: AsyncClient):
+    resp = await admin_client.get("/api/v1/reports/tickets")
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_report_tickets_period_over_limit_returns_422(admin_client: AsyncClient):
+    date_from = "2020-01-01T00:00:00"
+    date_to = "2021-03-10T00:00:00"
+    resp = await admin_client.get(
+        f"/api/v1/reports/tickets?date_from={date_from}&date_to={date_to}"
+    )
+    assert resp.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_report_technician_returns_403(tech_client: AsyncClient):
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    date_from = "2026-01-01T00:00:00"
+    date_to = "2026-12-31T23:59:59"
+    resp = await tech_client.get(
+        f"/api/v1/reports/tickets?date_from={date_from}&date_to={date_to}"
+    )
+    assert resp.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_report_equipments_json(
+    admin_client: AsyncClient,
+    db_session: AsyncSession,
+    seeded_tenant: Tenant,
+    admin_user: User,
+    default_priority: "Priority",
+    status_new: "Status",
+):
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    date_from = "2026-01-01T00:00:00"
+    date_to = "2026-12-31T23:59:59"
+    resp = await admin_client.get(
+        f"/api/v1/reports/equipments?date_from={date_from}&date_to={date_to}"
+    )
+    assert resp.status_code == 200
+    assert isinstance(resp.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_report_sla_json(
+    admin_client: AsyncClient,
+    db_session: AsyncSession,
+    seeded_tenant: Tenant,
+    admin_user: User,
+    default_priority: "Priority",
+    status_new: "Status",
+):
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    date_from = "2026-01-01T00:00:00"
+    date_to = "2026-12-31T23:59:59"
+    resp = await admin_client.get(
+        f"/api/v1/reports/sla?date_from={date_from}&date_to={date_to}"
+    )
+    assert resp.status_code == 200
+    assert isinstance(resp.json(), list)
+
+
+@pytest.mark.asyncio
+async def test_report_teams_json(
+    admin_client: AsyncClient,
+    db_session: AsyncSession,
+    seeded_tenant: Tenant,
+    admin_user: User,
+    default_priority: "Priority",
+    status_new: "Status",
+):
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    date_from = "2026-01-01T00:00:00"
+    date_to = "2026-12-31T23:59:59"
+    resp = await admin_client.get(
+        f"/api/v1/reports/teams?date_from={date_from}&date_to={date_to}"
+    )
+    assert resp.status_code == 200
+    assert isinstance(resp.json(), list)
