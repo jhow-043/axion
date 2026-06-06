@@ -18,6 +18,7 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.db.engine import dispose_engine, get_engine
+from app.modules.administration.router import router as administration_router
 from app.modules.attachments.router import attachments_router, ticket_attachments_router
 from app.modules.audit.router import router as audit_router
 from app.modules.auth.router import router as auth_router
@@ -104,6 +105,7 @@ def create_app() -> FastAPI:
     app.include_router(notifications_router, prefix="/api/v1")
     app.include_router(ws_router)
     app.include_router(audit_router, prefix="/api/v1")
+    app.include_router(administration_router, prefix="/api/v1")
 
     return app
 

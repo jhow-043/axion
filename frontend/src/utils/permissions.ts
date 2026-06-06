@@ -35,6 +35,7 @@ export const Permissions = {
   ADMIN_CONFIG: "admin:config",
   EQUIPMENT_READ: "equipment:read",
   EQUIPMENT_MANAGE: "equipment:manage",
+  SYSTEM_ADMIN: "system_admin",
 } as const;
 
 export type PermissionCode = (typeof Permissions)[keyof typeof Permissions];

@@ -23,6 +23,8 @@ ADMIN_CONFIG = "admin:config"
 EQUIPMENT_READ = "equipment:read"
 EQUIPMENT_MANAGE = "equipment:manage"
 
+SYSTEM_ADMIN = "system_admin"
+
 # Full catalogue as a list — used by seed to populate the permissions table.
 ALL_PERMISSIONS: list[tuple[str, str]] = [
     (USER_READ, "Visualizar usuários"),
@@ -38,4 +40,5 @@ ALL_PERMISSIONS: list[tuple[str, str]] = [
     (ADMIN_CONFIG, "Gerenciar configurações"),
     (EQUIPMENT_READ, "Ver equipamentos"),
     (EQUIPMENT_MANAGE, "Gerenciar equipamentos"),
+    (SYSTEM_ADMIN, "Super-administrador do sistema"),
 ]

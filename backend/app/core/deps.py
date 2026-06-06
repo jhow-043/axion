@@ -101,6 +101,25 @@ async def get_current_role_codes(
     return await repo.get_role_codes(current_user.id)
 
 
+def require_system_admin() -> Callable:
+    """Returns a dependency that passes only if the user holds the 'system_admin' permission.
+    Used exclusively by /admin/tenants endpoints — bypasses normal tenant-scoped access."""
+
+    async def _check(
+        current_user=Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
+    ):
+        from app.modules.auth.repository import UserAuthRepository
+
+        repo = UserAuthRepository(db)
+        permissions = await repo.get_permissions(current_user.id)
+        if "system_admin" not in permissions:
+            raise HTTPException(status_code=403, detail="Acesso restrito a super-administradores.")
+        return current_user
+
+    return _check
+
+
 def require_any_permission(*permission_codes: str) -> Callable:
     """Factory returning a dependency that passes if the user holds ANY of the given permissions."""
 
