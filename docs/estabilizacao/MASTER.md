@@ -39,7 +39,7 @@
 | EST-ID | Módulo | Classificação | Descrição resumida | Issue GH# |
 |--------|--------|--------------|-------------------|-----------|
 | EST-FE-001 | SLA / Frontend | Bloqueador | `npm run build` falha: dependencia `date-fns` ausente em `SlaIndicator` | - |
-| EST-FE-002 | Dashboards / Frontend | Bloqueador | `npm run build` falha: `data` possivelmente indefinido em `KanbanBoard` | - |
+| EST-FE-002 | Dashboards / Frontend | Bloqueador | `npm run build` falha: `data` possivelmente indefinido em `KanbanBoard` | #27 |
 | EST-FE-003 | Frontend / Tooling | Alto | `npm run lint` falha: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | - |
 | EST-BE-001 | Backend / Tooling | Alto | `uv run ruff check .` falha com 59 ocorrencias em migrations, reports, dashboards e testes | - |
 | EST-BE-002 | Backend / Ambiente | Medio | `uv run pytest` falha quando `DEBUG=release`; suite passa ao executar com `DEBUG=false` | - |
@@ -76,6 +76,7 @@ Data: 2026-06-08
 | EST-ID | Status | Validacao |
 |--------|--------|-----------|
 | EST-FE-001 | Corrigido localmente | `npm run test`; `npm run build` nao aponta mais erro de `date-fns`, segue bloqueado por EST-FE-002 |
+| EST-FE-002 | Corrigido localmente | `npm run build`; `npm run test` |
 
 ---
 
@@ -129,4 +130,4 @@ URLs:
 
 ---
 
-*Última atualização: 2026-06-08 | Branch: feature/018-administracao*
+*Última atualização: 2026-06-08 | Branch: fix/EST-FE-002-kanban-data-narrowing*

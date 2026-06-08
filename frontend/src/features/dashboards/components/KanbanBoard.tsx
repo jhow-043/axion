@@ -119,6 +119,7 @@ export function KanbanBoard() {
         Erro ao carregar o Kanban. Tente novamente.
       </div>
     );
+  const board = data;
 
   function handleDragStart(event: DragStartEvent) {
     const ticket = event.active.data.current?.ticket as BoardTicketItem;
@@ -134,7 +135,7 @@ export function KanbanBoard() {
     const ticketId = active.id as string;
     const targetStatusCode = over.id as string;
 
-    const sourceColumn = data.columns.find((c) =>
+    const sourceColumn = board.columns.find((c) =>
       c.tickets.some((t) => t.id === ticketId),
     );
     if (!sourceColumn || sourceColumn.status_code === targetStatusCode) return;
@@ -164,7 +165,7 @@ export function KanbanBoard() {
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4">
-          {data.columns.map((column) => (
+          {board.columns.map((column) => (
             <KanbanColumn key={column.status_code} column={column} />
           ))}
         </div>
