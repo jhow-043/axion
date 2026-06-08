@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.deps import get_current_user, get_db, require_system_admin
 from app.modules.administration.repository import TenantRepository
 from app.modules.administration.schemas import (
+    GlobalDashboardResponse,
     TenantCreate,
     TenantListResponse,
     TenantResponse,
@@ -30,6 +31,18 @@ def _get_service(
         audit_svc=audit_svc,
         actor_id=current_user.id,
     )
+
+
+# NOTE: /dashboard must be declared before /{tenant_id} so FastAPI does not
+# attempt to parse "dashboard" as a UUID path parameter.
+@router.get("/dashboard", response_model=GlobalDashboardResponse)
+async def get_dashboard(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    service: AdminService = Depends(_get_service),
+    _: None = Depends(require_system_admin()),
+) -> GlobalDashboardResponse:
+    return await service.get_dashboard(page=page, page_size=page_size)
 
 
 @router.get("", response_model=TenantListResponse)
@@ -86,3 +99,12 @@ async def deactivate_tenant(
     _: None = Depends(require_system_admin()),
 ) -> TenantResponse:
     return await service.deactivate_tenant(tenant_id)
+
+
+@router.delete("/{tenant_id}", status_code=204)
+async def delete_tenant(
+    tenant_id: UUID,
+    service: AdminService = Depends(_get_service),
+    _: None = Depends(require_system_admin()),
+) -> None:
+    await service.delete_tenant(tenant_id)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -16,23 +17,26 @@ class TenantRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
+    def _active_stmt(self):
+        return select(Tenant).where(Tenant.deleted_at.is_(None))
+
     async def list(self, *, offset: int = 0, limit: int = 20) -> list[Tenant]:
-        stmt = select(Tenant).order_by(Tenant.created_at.desc()).offset(offset).limit(limit)
+        stmt = self._active_stmt().order_by(Tenant.created_at.desc()).offset(offset).limit(limit)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
     async def count(self) -> int:
-        stmt = select(func.count()).select_from(Tenant)
+        stmt = select(func.count()).select_from(Tenant).where(Tenant.deleted_at.is_(None))
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
     async def get(self, tenant_id: UUID) -> Tenant | None:
-        stmt = select(Tenant).where(Tenant.id == tenant_id)
+        stmt = select(Tenant).where(Tenant.id == tenant_id, Tenant.deleted_at.is_(None))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_by_slug(self, slug: str) -> Tenant | None:
-        stmt = select(Tenant).where(Tenant.slug == slug)
+        stmt = select(Tenant).where(Tenant.slug == slug, Tenant.deleted_at.is_(None))
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -51,4 +55,12 @@ class TenantRepository:
             setattr(tenant, key, value)
         await self.session.flush()
         await self.session.refresh(tenant)
+        return tenant
+
+    async def soft_delete(self, tenant_id: UUID) -> Tenant | None:
+        tenant = await self.get(tenant_id)
+        if tenant is None:
+            return None
+        tenant.deleted_at = datetime.utcnow()
+        await self.session.flush()
         return tenant

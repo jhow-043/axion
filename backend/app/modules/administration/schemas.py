@@ -12,9 +12,34 @@ class TenantResponse(BaseModel):
     name: str
     slug: str
     is_active: bool
+    is_system: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class CompanyRowResponse(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    is_active: bool
+    is_system: bool
+    created_at: datetime
+    user_count: int
+    ticket_count: int
+    plan: str | None = None
+
+
+class GlobalDashboardResponse(BaseModel):
+    total_companies: int
+    active_companies: int
+    suspended_companies: int
+    total_users: int
+    total_tickets: int
+    companies: list[CompanyRowResponse]
+    page: int
+    page_size: int
+    total_company_pages: int
 
 
 class TenantCreate(BaseModel):
