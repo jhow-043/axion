@@ -23,9 +23,12 @@
 
 | EST-ID | Spec | Subplano | Classificação | Descrição | GH# | Branch | PR | Status |
 |--------|------|----------|--------------|-----------|-----|--------|-----|--------|
-| EST-FE-001 | P12 | 08 | Bloqueador | Build frontend falha por dependencia `date-fns` ausente em `SlaIndicator` | - | - | - | Corrigido localmente |
-| EST-FE-002 | P15 | 09 | Bloqueador | Build frontend falha por `data` possivelmente indefinido em `KanbanBoard` | #27 | fix/EST-FE-002-kanban-data-narrowing | #28 | Em PR |
+| EST-FE-001 | P12 | 08 | Bloqueador | Build frontend falha por dependencia `date-fns` ausente em `SlaIndicator` | - | - | #26 | Mergeado |
+| EST-FE-002 | P15 | 09 | Bloqueador | Build frontend falha por `data` possivelmente indefinido em `KanbanBoard` | #27 | fix/EST-FE-002-kanban-data-narrowing | #28 | Mergeado |
 | EST-FE-003 | P02 | 10 | Alto | Lint frontend nao executa por falta de `eslint.config.*` compativel com ESLint 9 | - | - | - | Catalogado |
+| EST-DEV-001 | DX | Geral | Alto | `start.ps1` imprime erros `PID : O termo 'PID' nao e reconhecido` ao iniciar Celery/Vite | - | - | - | Catalogado |
+| EST-FE-004 | P02 | 10 | Medio | React Router emite warning `No HydrateFallback element provided` no console do navegador | - | - | - | Catalogado |
+| EST-AUTH-001 | P03 | 01 | Medio | Console mostra varios 401 em `/auth/refresh` e `/auth/login` ao abrir/login; precisa separar fluxo esperado de bug real | - | - | - | Catalogado |
 | EST-BE-001 | P00-P19 | Geral | Alto | `ruff check .` falha com 59 ocorrencias em codigo e testes | - | - | - | Catalogado |
 | EST-BE-002 | P00 | Geral | Medio | `Settings.DEBUG` quebra testes quando ambiente externo define `DEBUG=release` | - | - | - | Catalogado |
 | — | — | — | — | *Aguardando Fase A* | — | — | — | — |

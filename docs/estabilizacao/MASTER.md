@@ -41,6 +41,9 @@
 | EST-FE-001 | SLA / Frontend | Bloqueador | `npm run build` falha: dependencia `date-fns` ausente em `SlaIndicator` | - |
 | EST-FE-002 | Dashboards / Frontend | Bloqueador | `npm run build` falha: `data` possivelmente indefinido em `KanbanBoard` | #27 |
 | EST-FE-003 | Frontend / Tooling | Alto | `npm run lint` falha: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | - |
+| EST-DEV-001 | Dev scripts | Alto | `start.ps1` imprime erros de PowerShell ao mostrar PIDs de Celery/Vite | - |
+| EST-FE-004 | Navegacao / Frontend | Medio | React Router emite warning `No HydrateFallback element provided` no console | - |
+| EST-AUTH-001 | Auth / Frontend | Medio | Console mostra repetidos 401 em refresh/login; confirmar se e fluxo esperado ou bug | - |
 | EST-BE-001 | Backend / Tooling | Alto | `uv run ruff check .` falha com 59 ocorrencias em migrations, reports, dashboards e testes | - |
 | EST-BE-002 | Backend / Ambiente | Medio | `uv run pytest` falha quando `DEBUG=release`; suite passa ao executar com `DEBUG=false` | - |
 | — | — | — | *A preencher na Fase A* | — |
@@ -53,8 +56,8 @@
 
 Contagem atual da Fase A:
 - Bloqueador: 2
-- Alto: 2
-- Medio: 1
+- Alto: 3
+- Medio: 3
 - Baixo: 0
 
 ## Ultima varredura automatizada
@@ -71,12 +74,22 @@ Data: 2026-06-08
 | `uv run pytest -q` com `DEBUG=false` | Passou: 690 testes, cobertura 93,78% |
 | `uv run ruff check .` | Falhou: EST-BE-001 |
 
-## Correcoes em andamento
+## Correcoes concluidas
 
 | EST-ID | Status | Validacao |
 |--------|--------|-----------|
-| EST-FE-001 | Corrigido localmente | `npm run test`; `npm run build` nao aponta mais erro de `date-fns`, segue bloqueado por EST-FE-002 |
-| EST-FE-002 | Corrigido localmente | `npm run build`; `npm run test` |
+| EST-FE-001 | Mergeado | PR #26 |
+| EST-FE-002 | Mergeado | Issue #27; PR #28; `npm run build`; `npm run test` |
+
+## Novos achados manuais
+
+Data: 2026-06-08
+
+| EST-ID | Evidencia | Status |
+|--------|-----------|--------|
+| EST-DEV-001 | `.\start.ps1` mostra `PID : O termo 'PID' nao e reconhecido` nas linhas de Celery/Vite | Catalogado |
+| EST-FE-004 | Console do navegador mostra `No HydrateFallback element provided` | Catalogado |
+| EST-AUTH-001 | Console mostra 401 em `/auth/refresh` e `/auth/login`; requer reproducao com `.\start.ps1 -Seed` e credenciais seed | Catalogado |
 
 ---
 
@@ -130,4 +143,4 @@ URLs:
 
 ---
 
-*Última atualização: 2026-06-08 | Branch: fix/EST-FE-002-kanban-data-narrowing*
+*Última atualização: 2026-06-08 | Branch: docs/map-startup-auth-console-errors*
