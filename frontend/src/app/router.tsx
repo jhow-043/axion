@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { RequireAuth } from "@/shared/components/RequireAuth";
 import { AppShell } from "@/shared/components/layout/AppShell";
 import { LoginPage } from "@/features/auth/components/LoginPage";
@@ -108,6 +108,20 @@ export const router = createBrowserRouter([
               })),
           },
           {
+            path: "tickets",
+            lazy: () =>
+              import("@/features/tickets/components/TicketList").then((m) => ({
+                Component: m.TicketList,
+              })),
+          },
+          {
+            path: "tickets/new",
+            lazy: () =>
+              import("@/features/tickets/components/TicketForm").then((m) => ({
+                Component: m.TicketForm,
+              })),
+          },
+          {
             path: "tickets/:id",
             lazy: () =>
               import("@/features/tickets/components/TicketDetail").then((m) => ({
@@ -129,32 +143,69 @@ export const router = createBrowserRouter([
               ).then((m) => ({ Component: m.NotificationPreferences })),
           },
           {
-            path: "dashboard/technician",
+            path: "setores",
             lazy: () =>
-              import(
-                "@/features/dashboards/components/TechnicianDashboard"
-              ).then((m) => ({ Component: m.TechnicianDashboard })),
+              import("@/features/locations/components/SetoresLocaisPage").then((m) => ({
+                Component: m.SetoresLocaisPage,
+              })),
           },
           {
-            path: "dashboard/supervisor",
+            path: "locais",
             lazy: () =>
-              import(
-                "@/features/dashboards/components/SupervisorDashboard"
-              ).then((m) => ({ Component: m.SupervisorDashboard })),
+              import("@/features/locations/components/LocationList").then((m) => ({
+                Component: m.LocationList,
+              })),
           },
           {
-            path: "dashboard/board",
+            path: "sla",
             lazy: () =>
-              import("@/features/dashboards/components/KanbanBoard").then(
-                (m) => ({ Component: m.KanbanBoard }),
-              ),
+              import("@/features/sla/components/SlaPolicyList").then((m) => ({
+                Component: m.SlaPolicyList,
+              })),
           },
           {
-            path: "dashboard/management",
-            lazy: () =>
-              import(
-                "@/features/dashboards/components/ManagementDashboard"
-              ).then((m) => ({ Component: m.ManagementDashboard })),
+            path: "catalogos",
+            element: <Navigate to="/administracao/catalogos" replace />,
+          },
+          {
+            path: "dashboard",
+            children: [
+              {
+                index: true,
+                lazy: () =>
+                  import("@/shared/components/pages/DashboardRedirect").then((m) => ({
+                    Component: m.DashboardRedirect,
+                  })),
+              },
+              {
+                path: "technician",
+                lazy: () =>
+                  import(
+                    "@/features/dashboards/components/TechnicianDashboard"
+                  ).then((m) => ({ Component: m.TechnicianDashboard })),
+              },
+              {
+                path: "supervisor",
+                lazy: () =>
+                  import(
+                    "@/features/dashboards/components/SupervisorDashboard"
+                  ).then((m) => ({ Component: m.SupervisorDashboard })),
+              },
+              {
+                path: "board",
+                lazy: () =>
+                  import("@/features/dashboards/components/KanbanBoard").then(
+                    (m) => ({ Component: m.KanbanBoard }),
+                  ),
+              },
+              {
+                path: "management",
+                lazy: () =>
+                  import(
+                    "@/features/dashboards/components/ManagementDashboard"
+                  ).then((m) => ({ Component: m.ManagementDashboard })),
+              },
+            ],
           },
           {
             path: "relatorios",
@@ -226,12 +277,28 @@ export const router = createBrowserRouter([
                     "@/features/administration/components/sections/AuditSection"
                   ).then((m) => ({ Component: m.AuditSection })),
               },
+            ],
+          },
+          {
+            path: "plataforma",
+            lazy: () =>
+              import("@/features/platform/components/PlatformArea").then((m) => ({
+                Component: m.PlatformArea,
+              })),
+            children: [
               {
-                path: "tenants",
+                index: true,
                 lazy: () =>
-                  import(
-                    "@/features/administration/components/sections/TenantsSection"
-                  ).then((m) => ({ Component: m.TenantsSection })),
+                  import("@/features/platform/components/GlobalDashboard").then((m) => ({
+                    Component: m.GlobalDashboard,
+                  })),
+              },
+              {
+                path: "empresas",
+                lazy: () =>
+                  import("@/features/platform/components/CompanyList").then((m) => ({
+                    Component: m.CompanyList,
+                  })),
               },
             ],
           },

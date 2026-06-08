@@ -43,3 +43,16 @@ export interface SlaPolicyCreate {
   resolution_minutes: number;
   alert_threshold_pct?: number;
 }
+
+export interface SlaPolicyPatch {
+  attendance_minutes?: number;
+  resolution_minutes?: number;
+  alert_threshold_pct?: number;
+}
+
+export interface SlaPolicyListResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  items: SlaPolicy[];
+}

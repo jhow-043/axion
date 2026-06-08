@@ -17,7 +17,7 @@ export function EquipmentList() {
   const [confirmDeactivate, setConfirmDeactivate] = useState<string | null>(null);
 
   const { data, isLoading, error } = useEquipments(filters);
-  const { data: sectorsData } = useSectors({ is_active: true, page_size: 200 });
+  const { data: sectorsData } = useSectors({ is_active: true, page_size: 100 });
   const deactivate = useDeactivateEquipment();
 
   function applySearch() {
