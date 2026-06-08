@@ -1,6 +1,4 @@
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
-
+import { formatDistanceToNow } from "@/utils/dates";
 import type { SlaAttendance, SlaResolution, SlaStatus } from "../types";
 import { useTicketSla } from "../api";
 
@@ -59,7 +57,7 @@ function AttendanceSla({ att }: { att: SlaAttendance }) {
       </div>
       {dueAt && att.status !== "met" && att.status !== "breached" && (
         <p className="mt-0.5 text-xs text-gray-500">
-          Prazo: {formatDistanceToNow(dueAt, { addSuffix: true, locale: ptBR })}
+          Prazo: {formatDistanceToNow(dueAt)}
         </p>
       )}
     </div>
@@ -89,7 +87,7 @@ function ResolutionSla({ res }: { res: SlaResolution }) {
           <p className="mt-0.5 text-xs text-gray-500">
             {res.remaining_minutes != null
               ? `${res.remaining_minutes} min restantes`
-              : formatDistanceToNow(dueAt, { addSuffix: true, locale: ptBR })}
+              : formatDistanceToNow(dueAt)}
           </p>
         </>
       )}

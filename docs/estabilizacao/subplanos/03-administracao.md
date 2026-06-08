@@ -78,6 +78,12 @@
 |--------|--------------|-----------|---------------|------------|
 | — | — | *A preencher* | — | — |
 
+## Evidencias da varredura
+
+- 2026-06-08: `uv run pytest tests/administration -q` com `DEBUG=false` executou 33 testes de administracao com sucesso.
+- A execucao parcial falhou apenas no gate global de cobertura (`--cov-fail-under=90`), esperado quando se mede `app` inteiro rodando somente um subdiretorio.
+- 2026-06-08: `uv run pytest -q` com `DEBUG=false` passou com 690 testes e cobertura 93,78%.
+
 ---
 
 ## Notas de risco

@@ -48,6 +48,7 @@
 
 | EST-ID | Classificação | Descrição | Arquivo:Linha | Reprodução |
 |--------|--------------|-----------|---------------|------------|
+| EST-FE-003 | Alto | Lint frontend nao executa: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | `frontend/package.json` | `cd frontend && npm run lint` |
 | — | — | *A preencher* | — | — |
 
 ---

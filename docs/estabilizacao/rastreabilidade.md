@@ -23,6 +23,11 @@
 
 | EST-ID | Spec | Subplano | Classificação | Descrição | GH# | Branch | PR | Status |
 |--------|------|----------|--------------|-----------|-----|--------|-----|--------|
+| EST-FE-001 | P12 | 08 | Bloqueador | Build frontend falha por dependencia `date-fns` ausente em `SlaIndicator` | - | - | - | Corrigido localmente |
+| EST-FE-002 | P15 | 09 | Bloqueador | Build frontend falha por `data` possivelmente indefinido em `KanbanBoard` | - | - | - | Catalogado |
+| EST-FE-003 | P02 | 10 | Alto | Lint frontend nao executa por falta de `eslint.config.*` compativel com ESLint 9 | - | - | - | Catalogado |
+| EST-BE-001 | P00-P19 | Geral | Alto | `ruff check .` falha com 59 ocorrencias em codigo e testes | - | - | - | Catalogado |
+| EST-BE-002 | P00 | Geral | Medio | `Settings.DEBUG` quebra testes quando ambiente externo define `DEBUG=release` | - | - | - | Catalogado |
 | — | — | — | — | *Aguardando Fase A* | — | — | — | — |
 
 ---
