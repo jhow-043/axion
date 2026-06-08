@@ -57,6 +57,7 @@ alembic/versions/__pycache__/
 .claude/settings.local.json
 
 # Artefatos gerados (coverage, relatórios gerados automaticamente)
+docs/progress.html
 backend/docs/progress.html
 backend/coverage.json
 
