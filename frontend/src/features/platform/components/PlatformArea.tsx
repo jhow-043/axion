@@ -1,30 +1,25 @@
 import { NavLink, Outlet } from "react-router";
-import { Building2, Users, Users2, MapPin, BookOpen, ShieldCheck, Bell, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Building2 } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-const ADMIN_SECTIONS = [
-  { to: "/administracao/empresa", label: "Empresa", icon: Building2 },
-  { to: "/administracao/usuarios", label: "Usuários", icon: Users },
-  { to: "/administracao/equipes", label: "Equipes", icon: Users2 },
-  { to: "/administracao/setores", label: "Setores", icon: MapPin },
-  { to: "/administracao/catalogos", label: "Catálogos", icon: BookOpen },
-  { to: "/administracao/sla", label: "SLA", icon: ShieldCheck },
-  { to: "/administracao/notificacoes", label: "Notificações", icon: Bell },
-  { to: "/administracao/auditoria", label: "Auditoria", icon: ClipboardList },
+const PLATFORM_SECTIONS = [
+  { to: "/plataforma", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/plataforma/empresas", label: "Empresas", icon: Building2, end: false },
 ] as const;
 
-export function AdminConsole() {
+export function PlatformArea() {
   return (
     <div className="flex h-full min-h-0">
       <aside className="w-48 shrink-0 border-r bg-muted/30 py-4 overflow-y-auto">
         <p className="px-4 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Administração
+          Plataforma
         </p>
         <nav>
-          {ADMIN_SECTIONS.map(({ to, label, icon: Icon }) => (
+          {PLATFORM_SECTIONS.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
+              end={end}
               className={({ isActive }) =>
                 cn(
                   "flex items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground",

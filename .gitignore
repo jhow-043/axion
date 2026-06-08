@@ -58,3 +58,9 @@ alembic/versions/__pycache__/
 
 # Artefatos gerados (dashboards, relatórios HTML)
 docs/progress.html
+backend/docs/progress.html
+backend/coverage.json
+
+# Dev runtime / MCP temporários
+.dev-pids.json
+.playwright-mcp/

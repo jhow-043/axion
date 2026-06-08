@@ -7,8 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.security import hash_password
+from app.modules.administration.dashboard_repository import DashboardRepository
 from app.modules.administration.repository import TenantRepository
 from app.modules.administration.schemas import (
+    CompanyRowResponse,
+    GlobalDashboardResponse,
     TenantCreate,
     TenantListResponse,
     TenantResponse,
@@ -144,6 +147,56 @@ class AdminService:
                 after={"is_active": False},
             )
         return TenantResponse.model_validate(updated)
+
+    async def delete_tenant(self, tenant_id: UUID) -> None:
+        tenant = await self._tenants.get(tenant_id)
+        if tenant is None:
+            raise NotFoundError("Tenant não encontrado.")
+        if tenant.is_system:
+            raise ConflictError("O tenant da plataforma não pode ser excluído.")
+        before = {"name": tenant.name, "slug": tenant.slug, "is_active": tenant.is_active}
+        await self._tenants.soft_delete(tenant_id)
+        if self._audit:
+            await self._audit.log(
+                action="tenant.deleted",
+                entity_type="Tenant",
+                entity_id=tenant_id,
+                actor_id=self._actor_id,
+                before=before,
+                after={"deleted": True},
+            )
+
+    async def get_dashboard(self, *, page: int = 1, page_size: int = 20) -> GlobalDashboardResponse:
+        dash_repo = DashboardRepository(self._db)
+        stats = await dash_repo.get_global_stats()
+        offset = (page - 1) * page_size
+        rows = await dash_repo.list_company_rows(offset=offset, limit=page_size)
+        total = stats.total_companies
+        total_pages = max(1, -(-total // page_size))
+        return GlobalDashboardResponse(
+            total_companies=stats.total_companies,
+            active_companies=stats.active_companies,
+            suspended_companies=stats.suspended_companies,
+            total_users=stats.total_users,
+            total_tickets=stats.total_tickets,
+            companies=[
+                CompanyRowResponse(
+                    id=r.id,
+                    name=r.name,
+                    slug=r.slug,
+                    is_active=r.is_active,
+                    is_system=r.is_system,
+                    created_at=r.created_at,
+                    user_count=r.user_count,
+                    ticket_count=r.ticket_count,
+                    plan=None,
+                )
+                for r in rows
+            ],
+            page=page,
+            page_size=page_size,
+            total_company_pages=total_pages,
+        )
 
 
 async def _seed_tenant_settings(db: AsyncSession, tenant_id: UUID) -> None:

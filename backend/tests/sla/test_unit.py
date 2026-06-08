@@ -8,6 +8,8 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.exceptions import NotFoundError
+from app.modules.sla.schemas import SlaPolicyPatch
 from app.modules.sla.service import SlaService, _elapsed_pct
 
 # Use naive datetimes throughout (consistent with SLA module's naive UTC pattern)
@@ -265,3 +267,260 @@ async def test_sweep_alerts_does_not_double_alert(svc):
 
     await svc.sweep_alerts()
     svc._trackers.update.assert_not_called()
+
+
+# ── Policy NotFound paths ──────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_get_policy_raises_not_found(svc):
+    svc._policies.get = AsyncMock(return_value=None)
+    with pytest.raises(NotFoundError):
+        await svc.get_policy(uuid4())
+
+
+@pytest.mark.asyncio
+async def test_update_policy_raises_not_found(svc):
+    svc._policies.get = AsyncMock(return_value=None)
+    with pytest.raises(NotFoundError):
+        await svc.update_policy(uuid4(), SlaPolicyPatch())
+
+
+@pytest.mark.asyncio
+async def test_deactivate_policy_raises_not_found(svc):
+    svc._policies.get = AsyncMock(return_value=None)
+    with pytest.raises(NotFoundError):
+        await svc.deactivate_policy(uuid4())
+
+
+# ── on_ticket_assigned: policy missing ────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_on_ticket_assigned_noop_when_policy_missing(svc):
+    tracker = MagicMock()
+    tracker.id = uuid4()
+    tracker.attendance_status = "running"
+    tracker.attendance_due_at = datetime(2026, 1, 1, 10, 0)
+    tracker.policy_id = uuid4()
+    svc._trackers.find_by_ticket = AsyncMock(return_value=tracker)
+    svc._policies.get = AsyncMock(return_value=None)
+    svc._trackers.update = AsyncMock()
+
+    await svc.on_ticket_assigned(ticket_id=uuid4(), assigned_at=datetime(2026, 1, 1, 9, 0))
+    svc._trackers.update.assert_not_called()
+
+
+# ── on_ticket_resumed: no open pause ──────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_on_ticket_resumed_noop_when_no_open_pause(svc):
+    tracker = MagicMock()
+    tracker.id = uuid4()
+    tracker.resolution_status = "paused"
+    svc._trackers.find_by_ticket = AsyncMock(return_value=tracker)
+    svc._pauses.find_open_pause = AsyncMock(return_value=None)
+    svc._trackers.update = AsyncMock()
+
+    await svc.on_ticket_resumed(ticket_id=uuid4(), resumed_at=datetime.utcnow())
+    svc._trackers.update.assert_not_called()
+
+
+# ── get_ticket_sla: running tracker with elapsed calculation ──────────────────
+
+
+@pytest.mark.asyncio
+async def test_get_ticket_sla_running_calculates_elapsed_and_remaining(svc):
+    now = datetime.utcnow()
+    tracker = MagicMock()
+    tracker.policy_id = uuid4()
+    tracker.attendance_status = "met"
+    tracker.attendance_due_at = now - timedelta(hours=2)
+    tracker.attendance_met_at = now - timedelta(hours=3)
+    tracker.resolution_status = "running"
+    tracker.resolution_due_at = now + timedelta(hours=2)
+    tracker.resolution_met_at = None
+    tracker.total_paused_minutes = 30
+
+    policy = MagicMock()
+    policy.resolution_minutes = 480
+
+    svc._trackers.find_by_ticket = AsyncMock(return_value=tracker)
+    svc._policies.get = AsyncMock(return_value=policy)
+
+    result = await svc.get_ticket_sla(uuid4())
+
+    assert result.resolution.remaining_minutes is not None
+    assert result.resolution.elapsed_minutes is not None
+    assert result.resolution.remaining_minutes >= 0
+    assert result.resolution.elapsed_minutes >= 0
+
+
+# ── sweep_breaches: timeline + notification calls ─────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_sweep_breaches_records_timeline_and_notifies():
+    past = datetime(2024, 1, 1, 10, 0)  # clearly in the past
+    tracker = MagicMock()
+    tracker.id = uuid4()
+    tracker.ticket_id = uuid4()
+    tracker.attendance_status = "running"
+    tracker.attendance_due_at = past
+    tracker.resolution_status = "running"
+    tracker.resolution_due_at = past
+
+    timeline_svc = AsyncMock()
+    notification_svc = AsyncMock()
+    tracker_repo = AsyncMock()
+    tracker_repo.list_overdue = AsyncMock(return_value=[tracker])
+    tracker_repo.update = AsyncMock()
+
+    svc = SlaService(
+        policy_repo=AsyncMock(),
+        tracker_repo=tracker_repo,
+        pause_repo=AsyncMock(),
+        ticket_repo=AsyncMock(),
+        timeline_svc=timeline_svc,
+        notification_svc=notification_svc,
+    )
+
+    await svc.sweep_breaches()
+
+    tracker_repo.update.assert_awaited_once()
+    timeline_svc.record_event.assert_awaited()
+    notification_svc.notify.assert_awaited()
+
+
+@pytest.mark.asyncio
+async def test_sweep_breaches_breach_resolution_only():
+    """Only resolution breached (attendance already met)."""
+    past = datetime(2024, 1, 1, 10, 0)
+    tracker = MagicMock()
+    tracker.id = uuid4()
+    tracker.ticket_id = uuid4()
+    tracker.attendance_status = "met"   # not running → skip attendance check
+    tracker.attendance_due_at = past
+    tracker.resolution_status = "running"
+    tracker.resolution_due_at = past
+
+    tracker_repo = AsyncMock()
+    tracker_repo.list_overdue = AsyncMock(return_value=[tracker])
+    tracker_repo.update = AsyncMock()
+    notification_svc = AsyncMock()
+
+    svc = SlaService(
+        policy_repo=AsyncMock(),
+        tracker_repo=tracker_repo,
+        pause_repo=AsyncMock(),
+        ticket_repo=AsyncMock(),
+        notification_svc=notification_svc,
+    )
+
+    await svc.sweep_breaches()
+    update_data = tracker_repo.update.call_args[0][1]
+    assert "resolution_status" in update_data
+    assert "attendance_status" not in update_data
+
+
+# ── sweep_alerts: policy None skips, attendance + resolution alerts ───────────
+
+
+@pytest.mark.asyncio
+async def test_sweep_alerts_skips_tracker_when_policy_none(svc):
+    tracker = MagicMock()
+    tracker.policy_id = uuid4()
+    svc._trackers.list_running = AsyncMock(return_value=[tracker])
+    svc._policies.get = AsyncMock(return_value=None)
+    svc._trackers.update = AsyncMock()
+
+    await svc.sweep_alerts()
+    svc._trackers.update.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_sweep_alerts_sends_attendance_alert():
+    now = datetime.utcnow()
+    # 55 of 60 minutes elapsed → pct ≈ 91.6% > 80% threshold
+    tracker = MagicMock()
+    tracker.id = uuid4()
+    tracker.ticket_id = uuid4()
+    tracker.policy_id = uuid4()
+    tracker.attendance_status = "running"
+    tracker.attendance_alert_sent = False
+    tracker.attendance_due_at = now + timedelta(minutes=5)
+    tracker.resolution_status = "met"
+    tracker.resolution_alert_sent = True
+    tracker.resolution_due_at = None
+    tracker.total_paused_minutes = 0
+
+    policy = MagicMock()
+    policy.attendance_minutes = 60
+    policy.resolution_minutes = 480
+    policy.alert_threshold_pct = 80
+
+    notification_svc = AsyncMock()
+    tracker_repo = AsyncMock()
+    tracker_repo.list_running = AsyncMock(return_value=[tracker])
+    tracker_repo.update = AsyncMock()
+    policy_repo = AsyncMock()
+    policy_repo.get = AsyncMock(return_value=policy)
+
+    svc = SlaService(
+        policy_repo=policy_repo,
+        tracker_repo=tracker_repo,
+        pause_repo=AsyncMock(),
+        ticket_repo=AsyncMock(),
+        notification_svc=notification_svc,
+    )
+
+    await svc.sweep_alerts()
+
+    notification_svc.notify.assert_awaited_once()
+    call_kwargs = notification_svc.notify.call_args.kwargs
+    assert call_kwargs["event_type"] == "sla_attendance_alert"
+    tracker_repo.update.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_sweep_alerts_sends_resolution_alert():
+    now = datetime.utcnow()
+    tracker = MagicMock()
+    tracker.id = uuid4()
+    tracker.ticket_id = uuid4()
+    tracker.policy_id = uuid4()
+    tracker.attendance_status = "met"
+    tracker.attendance_alert_sent = True
+    tracker.attendance_due_at = now - timedelta(hours=1)
+    tracker.resolution_status = "running"
+    tracker.resolution_alert_sent = False
+    tracker.resolution_due_at = now + timedelta(minutes=5)
+    tracker.total_paused_minutes = 0
+
+    policy = MagicMock()
+    policy.attendance_minutes = 60
+    policy.resolution_minutes = 60
+    policy.alert_threshold_pct = 80
+
+    notification_svc = AsyncMock()
+    tracker_repo = AsyncMock()
+    tracker_repo.list_running = AsyncMock(return_value=[tracker])
+    tracker_repo.update = AsyncMock()
+    policy_repo = AsyncMock()
+    policy_repo.get = AsyncMock(return_value=policy)
+
+    svc = SlaService(
+        policy_repo=policy_repo,
+        tracker_repo=tracker_repo,
+        pause_repo=AsyncMock(),
+        ticket_repo=AsyncMock(),
+        notification_svc=notification_svc,
+    )
+
+    await svc.sweep_alerts()
+
+    notification_svc.notify.assert_awaited_once()
+    call_kwargs = notification_svc.notify.call_args.kwargs
+    assert call_kwargs["event_type"] == "sla_resolution_alert"
+    tracker_repo.update.assert_awaited_once()

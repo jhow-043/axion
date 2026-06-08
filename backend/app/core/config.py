@@ -59,8 +59,5 @@ class Settings(BaseSettings):
     # Reports (P16)
     REPORT_MAX_PERIOD_DAYS: int = 366
 
-    # Reports (P16)
-    REPORT_MAX_PERIOD_DAYS: int = 366
-
 
 settings = Settings()

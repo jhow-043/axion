@@ -10,7 +10,7 @@ export function EquipmentForm() {
   const isEdit = Boolean(id);
 
   const { data: existing, isLoading } = useEquipment(id ?? "");
-  const { data: sectorsData } = useSectors({ is_active: true, page_size: 200 });
+  const { data: sectorsData } = useSectors({ is_active: true, page_size: 100 });
   const createEquipment = useCreateEquipment();
   const updateEquipment = useUpdateEquipment(id ?? "");
 

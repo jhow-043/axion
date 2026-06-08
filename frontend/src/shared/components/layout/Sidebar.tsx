@@ -6,10 +6,12 @@ import {
   Settings,
   Wrench,
   MapPin,
-  BookOpen,
   BarChart2,
+  Server,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { hasPermission, Permissions } from "@/utils/permissions";
 
 const NAV_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -17,10 +19,11 @@ const NAV_ITEMS = [
   { to: "/equipments", label: "Equipamentos", icon: Wrench },
   { to: "/setores", label: "Setores / Locais", icon: MapPin },
   { to: "/users", label: "Usuários", icon: Users },
-  { to: "/catalogos", label: "Catálogos", icon: BookOpen },
   { to: "/relatorios", label: "Relatórios", icon: BarChart2 },
   { to: "/administracao", label: "Administração", icon: Settings },
 ] as const;
+
+const PLATFORM_ITEM = { to: "/plataforma", label: "Plataforma", icon: Server };
 
 interface SidebarProps {
   open: boolean;
@@ -28,6 +31,9 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open }: SidebarProps) {
+  const { session } = useAuth();
+  const isSaasAdmin = hasPermission(session, Permissions.SYSTEM_ADMIN);
+
   return (
     <aside
       className={cn(
@@ -59,6 +65,21 @@ export function Sidebar({ open }: SidebarProps) {
             {open && <span>{label}</span>}
           </NavLink>
         ))}
+
+        {isSaasAdmin && (
+          <NavLink
+            to={PLATFORM_ITEM.to}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
+              )
+            }
+          >
+            <PLATFORM_ITEM.icon className="h-4 w-4 shrink-0" />
+            {open && <span>{PLATFORM_ITEM.label}</span>}
+          </NavLink>
+        )}
       </nav>
     </aside>
   );

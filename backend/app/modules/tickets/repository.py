@@ -24,11 +24,13 @@ class TicketRepository(BaseRepository[Ticket]):
         type: str | None = None,
         status_code: str | None = None,
         priority_id: UUID | None = None,
+        category_id: UUID | None = None,
         team_id: UUID | None = None,
         assignee_id: UUID | None = None,
         requester_id: UUID | None = None,
         equipment_id: UUID | None = None,
         location_id: UUID | None = None,
+        sector_id: UUID | None = None,
         search: str | None = None,
         created_from: datetime | None = None,
         created_to: datetime | None = None,
@@ -42,11 +44,13 @@ class TicketRepository(BaseRepository[Ticket]):
             type,
             status_code,
             priority_id,
+            category_id,
             team_id,
             assignee_id,
             requester_id,
             equipment_id,
             location_id,
+            sector_id,
             search,
             created_from,
             created_to,
@@ -64,11 +68,13 @@ class TicketRepository(BaseRepository[Ticket]):
         type: str | None = None,
         status_code: str | None = None,
         priority_id: UUID | None = None,
+        category_id: UUID | None = None,
         team_id: UUID | None = None,
         assignee_id: UUID | None = None,
         requester_id: UUID | None = None,
         equipment_id: UUID | None = None,
         location_id: UUID | None = None,
+        sector_id: UUID | None = None,
         search: str | None = None,
         created_from: datetime | None = None,
         created_to: datetime | None = None,
@@ -80,11 +86,13 @@ class TicketRepository(BaseRepository[Ticket]):
             type,
             status_code,
             priority_id,
+            category_id,
             team_id,
             assignee_id,
             requester_id,
             equipment_id,
             location_id,
+            sector_id,
             search,
             created_from,
             created_to,
@@ -120,11 +128,13 @@ class TicketRepository(BaseRepository[Ticket]):
         type,
         status_code,
         priority_id,
+        category_id,
         team_id,
         assignee_id,
         requester_id,
         equipment_id,
         location_id,
+        sector_id,
         search,
         created_from,
         created_to,
@@ -142,6 +152,8 @@ class TicketRepository(BaseRepository[Ticket]):
             stmt = stmt.where(Ticket.status_id == status_subq)
         if priority_id:
             stmt = stmt.where(Ticket.priority_id == priority_id)
+        if category_id:
+            stmt = stmt.where(Ticket.category_id == category_id)
         if team_id:
             stmt = stmt.where(Ticket.team_id == team_id)
         if assignee_id:
@@ -152,6 +164,16 @@ class TicketRepository(BaseRepository[Ticket]):
             stmt = stmt.where(Ticket.equipment_id == equipment_id)
         if location_id:
             stmt = stmt.where(Ticket.location_id == location_id)
+        if sector_id:
+            # Filter by equipment's sector — only industrial tickets have equipment
+            from app.modules.equipments.models import Equipment
+
+            sector_subq = (
+                select(Equipment.id)
+                .where(Equipment.sector_id == sector_id, Equipment.tenant_id == self.tenant_id)
+                .scalar_subquery()
+            )
+            stmt = stmt.where(Ticket.equipment_id.in_(sector_subq))
         if search:
             stmt = stmt.where(Ticket.title.ilike(f"%{search}%"))
         if created_from:
