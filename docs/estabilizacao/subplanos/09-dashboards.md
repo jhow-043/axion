@@ -84,6 +84,13 @@
 | EST-FE-002 | Bloqueador | Build frontend falha porque o handler de drag usa `data.columns` quando o TypeScript ainda considera `data` possivelmente indefinido | `frontend/src/features/dashboards/components/KanbanBoard.tsx:137` | `cd frontend && npm run build` |
 | — | — | *A preencher* | — | — |
 
+## Evidencias da correcao
+
+- Issue: #27
+- Branch: `fix/EST-FE-002-kanban-data-narrowing`
+- 2026-06-08: `npm run build` passou.
+- 2026-06-08: `npm run test` passou com 37 testes.
+
 ---
 
 ## Notas de risco
