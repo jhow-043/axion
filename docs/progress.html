@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard de Progresso — Gestão de Manutenção</title>
+<style>
+  :root {
+    --bg: #0b0d14;
+    --surface: #141720;
+    --surface2: #1c2033;
+    --surface3: #232740;
+    --border: #2a2f4a;
+    --border-light: #353b5c;
+    --text: #e8eaf4;
+    --muted: #7880a0;
+    --muted2: #9aa0be;
+    --done: #22c55e;
+    --review: #f59e0b;
+    --approved: #4f8ef7;
+    --pending: #6366f1;
+    --blocked: #ef4444;
+    --done-bg: rgba(34,197,94,.1);
+    --review-bg: rgba(245,158,11,.1);
+    --approved-bg: rgba(79,142,247,.1);
+    --pending-bg: rgba(99,102,241,.1);
+    --accent1: #6366f1;
+    --accent2: #4f8ef7;
+    --accent3: #22c55e;
+    --glow-done: 0 0 20px rgba(34,197,94,.15);
+    --glow-review: 0 0 20px rgba(245,158,11,.15);
+    --shadow: 0 2px 8px rgba(0,0,0,.4);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--approved); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Top accent bar */
+  .top-bar {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+  }
+
+  /* Layout */
+  .container { max-width: 1320px; margin: 0 auto; padding: 36px 28px 48px; }
+
+  /* Header */
+  header { margin-bottom: 36px; }
+  .header-inner { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+  .header-left h1 {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #e8eaf4 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .header-left p { color: var(--muted2); font-size: 13px; max-width: 560px; }
+  .header-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .updated-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; color: var(--muted2);
+  }
+  .updated-tag strong { color: var(--text); }
+  .branch-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--review-bg); border: 1px solid rgba(245,158,11,.3); border-radius: 6px;
+    padding: 4px 10px; font-size: 11px; color: #fcd34d; font-family: monospace;
+  }
+
+  /* Grid */
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 24px; }
+  @media(max-width: 960px) { .grid-4,.grid-3 { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+  @media(max-width: 560px) { .grid-4,.grid-3 { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: border-color .2s;
+  }
+  .card-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 10px; }
+
+  /* KPI cards */
+  .kpi-card { position: relative; overflow: hidden; }
+  .kpi-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    border-radius: 12px 12px 0 0;
+  }
+  .kpi-done::before { background: var(--done); }
+  .kpi-review::before { background: var(--review); }
+  .kpi-approved::before { background: var(--approved); }
+  .kpi-neutral::before { background: var(--border-light); }
+  .stat-value { font-size: 38px; font-weight: 800; line-height: 1; margin: 4px 0; letter-spacing: -.03em; }
+  .stat-label { font-size: 12px; color: var(--muted2); }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* Next-up banner */
+  .next-up {
+    background: linear-gradient(135deg, rgba(245,158,11,.06), rgba(99,102,241,.06));
+    border: 1px solid rgba(245,158,11,.25);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .next-up-icon { font-size: 24px; flex-shrink: 0; }
+  .next-up-content { flex: 1; min-width: 200px; }
+  .next-up-content h3 { font-size: 14px; font-weight: 700; color: var(--review); margin-bottom: 3px; }
+  .next-up-content p { font-size: 12px; color: var(--muted2); }
+  .next-up-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .next-pill {
+    background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.3);
+    border-radius: 5px; padding: 3px 8px; font-size: 11px; font-family: monospace; color: #fcd34d;
+  }
+  .next-pill.blue {
+    background: rgba(79,142,247,.12); border: 1px solid rgba(79,142,247,.3); color: #7eb3ff;
+  }
+
+  /* Progress stacked bar */
+  .progress-card { margin-bottom: 24px; }
+  .progress-legend { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted2); }
+  .legend-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .stacked-bar {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 99px; height: 16px; overflow: hidden; display: flex;
+    margin-bottom: 8px;
+  }
+  .bar-segment { height: 100%; transition: width .8s cubic-bezier(.4,0,.2,1); }
+  .bar-done { background: linear-gradient(90deg, #16a34a, var(--done)); border-radius: 99px 0 0 99px; }
+  .bar-review { background: linear-gradient(90deg, #d97706, var(--review)); opacity: .8; }
+  .bar-pending { background: var(--pending); opacity: .25; border-radius: 0 99px 99px 0; }
+  .bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+  /* Section */
+  section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .badge-count {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 99px; padding: 1px 8px; font-size: 11px; font-weight: 600; color: var(--muted2);
+  }
+
+  /* Spec table */
+  .spec-grid { display: grid; gap: 8px; }
+  .spec-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 60px 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    transition: border-color .15s, box-shadow .15s;
+    cursor: default;
+  }
+  .spec-row:hover { border-color: var(--border-light); box-shadow: var(--shadow); }
+  .spec-row[data-status="done"]:hover { border-color: rgba(34,197,94,.3); box-shadow: var(--glow-done); }
+  .spec-row[data-status="in-review"]:hover { border-color: rgba(245,158,11,.3); box-shadow: var(--glow-review); }
+  .spec-id { font-size: 13px; font-weight: 800; color: var(--muted); font-family: monospace; }
+  .spec-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .spec-rfs { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+  .spec-deps { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 11px; font-weight: 700; white-space: nowrap;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .badge-done { background: var(--done-bg); color: var(--done); border: 1px solid rgba(34,197,94,.2); }
+  .badge-done::before { background: var(--done); }
+  .badge-review { background: var(--review-bg); color: var(--review); border: 1px solid rgba(245,158,11,.2); }
+  .badge-review::before { background: var(--review); animation: pulse 1.5s infinite; }
+  .badge-approved { background: var(--approved-bg); color: var(--approved); border: 1px solid rgba(79,142,247,.2); }
+  .badge-approved::before { background: var(--approved); }
+  .badge-pending { background: var(--pending-bg); color: #a5b4fc; border: 1px solid rgba(99,102,241,.2); }
+  .badge-pending::before { background: var(--pending); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .priority-badge {
+    display: inline-block; padding: 2px 7px; border-radius: 4px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 3px;
+  }
+  .prio-critica { background: rgba(239,68,68,.12); color: #f87171; }
+  .prio-alta { background: rgba(245,158,11,.12); color: #fbbf24; }
+  .prio-media { background: rgba(99,102,241,.12); color: #a5b4fc; }
+
+  /* Module grid */
+  .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px,1fr)); gap: 8px; }
+  .module-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    transition: border-color .15s;
+  }
+  .module-card:hover { border-color: var(--border-light); }
+  .module-name { font-weight: 700; font-size: 13px; font-family: monospace; margin-bottom: 3px; }
+  .module-files { font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .module-card.done { border-left: 3px solid var(--done); }
+  .module-card.impl { border-left: 3px solid var(--review); }
+  .module-card.skeleton { border-left: 3px solid var(--border-light); opacity: .7; }
+  .module-card.skeleton .module-name { color: var(--muted); }
+
+  /* Milestone timeline */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .milestone { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border); position: relative; }
+  .milestone:last-child { border-bottom: none; }
+  .milestone-dot {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; flex-shrink: 0; margin-top: 2px;
+  }
+  .dot-done { background: var(--done-bg); color: var(--done); border: 2px solid rgba(34,197,94,.4); box-shadow: 0 0 12px rgba(34,197,94,.2); }
+  .dot-next { background: var(--review-bg); color: var(--review); border: 2px solid rgba(245,158,11,.4); }
+  .dot-later { background: var(--surface2); color: var(--muted); border: 2px solid var(--border); }
+  .milestone-info h3 { font-size: 14px; font-weight: 700; color: var(--text); }
+  .milestone-info p { font-size: 12px; color: var(--muted2); margin-top: 3px; line-height: 1.6; }
+  .milestone-specs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .spec-pill {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; padding: 2px 7px; font-size: 11px; font-family: monospace; color: var(--muted2);
+  }
+  .spec-pill.done { border-color: rgba(34,197,94,.3); color: var(--done); background: var(--done-bg); }
+  .spec-pill.next { border-color: rgba(245,158,11,.3); color: var(--review); background: var(--review-bg); }
+
+  /* Migration list */
+  .migration-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 6px;
+  }
+  .migration-item:last-child { margin-bottom: 0; }
+  .migration-check { color: var(--done); font-size: 16px; flex-shrink: 0; }
+  .migration-hash { font-size: 12px; font-family: monospace; font-weight: 700; color: var(--text); }
+  .migration-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .migration-pending {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; margin-bottom: 5px; font-size: 12px;
+  }
+  .migration-pending:last-child { margin-bottom: 0; }
+  .migration-pending span:last-child { color: var(--muted); font-family: monospace; font-size: 11px; }
+
+  /* RF Coverage */
+  .rf-row { display: grid; grid-template-columns: 150px 1fr 52px; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .rf-label { font-size: 12px; color: var(--muted2); }
+  .rf-count { font-size: 12px; font-weight: 700; text-align: right; }
+  .progress-bar { background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; }
+  .fill-done { background: linear-gradient(90deg, #16a34a, var(--done)); }
+  .fill-review { background: var(--review); }
+  .fill-approved { background: var(--approved); opacity: .5; }
+
+  /* Risk cards */
+  .risk-list { display: grid; gap: 8px; }
+  .risk-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+    transition: border-color .15s;
+  }
+  .risk-card:hover { border-color: var(--border-light); }
+  .risk-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .risk-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .risk-desc { font-size: 12px; color: var(--muted2); margin-top: 3px; line-height: 1.6; }
+
+  /* Filter tabs */
+  .filter-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 7px; padding: 5px 14px; font-size: 12px; font-weight: 600;
+    cursor: pointer; color: var(--muted); transition: all .15s;
+  }
+  .tab-btn:hover { border-color: var(--border-light); color: var(--text); }
+  .tab-btn.active { background: var(--approved); border-color: var(--approved); color: #fff; }
+
+  /* Stack pills */
+  .stack-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .stack-pill {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px; font-size: 12px; font-family: monospace;
+    color: var(--muted2);
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border); padding-top: 20px;
+    color: var(--muted); font-size: 12px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .footer a { color: var(--muted2); }
+</style>
+</head>
+<body>
+<div class="top-bar"></div>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="header-left">
+        <h1>Gestão de Manutenção Industrial</h1>
+        <p>Sistema multi-tenant SaaS on-premise para chamados de manutenção com SLA, notificações em tempo real e dashboards operacionais.</p>
+      </div>
+      <div class="header-meta">
+        <div class="updated-tag">Atualizado em <strong>08 Jun 2026</strong></div>
+        <div class="branch-tag">⎇ feature/018-administracao</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="grid-4">
+    <div class="card kpi-card kpi-neutral">
+      <div class="card-title">Specs Totais</div>
+      <div class="stat-value" style="color:var(--text)">20</div>
+      <div class="stat-label">P00 – P19</div>
+    </div>
+    <div class="card kpi-card kpi-done">
+      <div class="card-title">Mergeadas no Master</div>
+      <div class="stat-value" style="color:var(--done)">16</div>
+      <div class="stat-label">P00 – P15 concluídas ✓</div>
+      <div class="stat-sub">80% do total</div>
+    </div>
+    <div class="card kpi-card kpi-review">
+      <div class="card-title">Em Review (PR #23)</div>
+      <div class="stat-value" style="color:var(--review)">3</div>
+      <div class="stat-label">P16, P17, P18 → PR #23 aberto</div>
+      <div class="stat-sub">MVP 100% implementado 🎉</div>
+    </div>
+    <div class="card kpi-card kpi-neutral">
+      <div class="card-title">Em Andamento</div>
+      <div class="stat-value" style="color:var(--approved)">1</div>
+      <div class="stat-label">P19 Plataforma Super-Admin</div>
+      <div class="stat-sub">Pós-MVP · em desenvolvimento</div>
+    </div>
+  </div>
+
+  <!-- Progress global -->
+  <div class="card progress-card">
+    <div class="card-title">Progresso Geral das Specs</div>
+    <div class="progress-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--done)"></div>
+        <span>Done — merged (16 specs) — 80%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--review)"></div>
+        <span>In-Review — PR #23 (3 specs) — 15%</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--approved)"></div>
+        <span>In-Progress — pós-MVP (1 spec) — 5%</span>
+      </div>
+    </div>
+    <div class="stacked-bar">
+      <div class="bar-segment bar-done" style="width:80%"></div>
+      <div class="bar-segment bar-review" style="width:15%"></div>
+      <div class="bar-segment" style="width:5%;background:var(--approved);opacity:.7"></div>
+    </div>
+    <div class="bar-labels">
+      <span>P00</span>
+      <span style="color:var(--done);font-weight:700">↑ P15 merged</span>
+      <span style="color:var(--review)">P16–P18 → PR #23</span>
+      <span style="color:var(--approved)">P19 →</span>
+    </div>
+  </div>
+
+  <!-- Next up -->
+  <div class="next-up">
+    <div class="next-up-icon">🚀</div>
+    <div class="next-up-content">
+      <h3>MVP pronto para merge — P19 (Plataforma) em andamento</h3>
+      <p>PR #23 aberto cobrindo P16 (Gerencial), P17 (Auditoria) e P18 (Administração). Após merge do MVP, P19 entrega o console super-admin para gestão da plataforma.</p>
+    </div>
+    <div class="next-up-pills">
+      <span class="next-pill"><a href="https://github.com/jhow-043/axion/pull/23" target="_blank" style="color:inherit">PR #23 → P16 + P17 + P18</a></span>
+      <span class="next-pill blue">P19 — super-admin em andamento</span>
+    </div>
+  </div>
+
+  <!-- Specs Table -->
+  <section>
+    <div class="section-title">
+      Todas as Specs
+      <span class="badge-count">20 specs</span>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab-btn active" onclick="filterSpecs('all', this)">Todas (20)</button>
+      <button class="tab-btn" onclick="filterSpecs('done', this)">Done (16)</button>
+      <button class="tab-btn" onclick="filterSpecs('in-review', this)">In-Review (3)</button>
+      <button class="tab-btn" onclick="filterSpecs('in-progress', this)">Em Andamento (1)</button>
+    </div>
+
+    <div class="spec-grid" id="spec-list">
+
+      <!-- P00 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P00</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">Fundação da Plataforma (Backend)</div>
+          <div class="spec-rfs">RF-001, RF-002, RF-003, RF-004 · Healthcheck, envelope de erro, paginação, config</div>
+        </div>
+        <div></div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P01 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P01</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">Multi-Tenancy &amp; Contexto de Tenant</div>
+          <div class="spec-rfs">RF-010, RF-011, RF-012, RF-013 · BaseRepository, TenantMixin, ContextVar</div>
+        </div>
+        <div></div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P02 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P02</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">Fundação do Frontend</div>
+          <div class="spec-rfs">RNF-A11Y-001/002, RNF-I18N-001/003 · React Router, TanStack Query, shadcn/ui, Axios, WebSocket</div>
+        </div>
+        <div></div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P03 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P03</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">Autenticação JWT + Argon2</div>
+          <div class="spec-rfs">RF-020 a RF-026 · Login, refresh token, logout, blacklist · <a href="https://github.com/jhow-043/axion/pull/4" target="_blank">PR #4</a></div>
+        </div>
+        <div class="spec-deps">Deps: P00, P01</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P04 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P04</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">Usuários e Permissões (RBAC)</div>
+          <div class="spec-rfs">RF-030 a RF-036 · CRUD usuários, papéis, permissões, seed padrão · <a href="https://github.com/jhow-043/axion/pull/5" target="_blank">PR #5</a></div>
+        </div>
+        <div class="spec-deps">Deps: P03</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P05 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P05</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Equipes de Manutenção</div>
+          <div class="spec-rfs">RF-040, RF-041, RF-042 · CRUD equipes, gerenciamento de membros · <a href="https://github.com/jhow-043/axion/pull/7" target="_blank">PR #7</a> + <a href="https://github.com/jhow-043/axion/pull/10" target="_blank">PR #10</a> (fix)</div>
+        </div>
+        <div class="spec-deps">Deps: P04</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P06 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P06</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Setores e Locais Prediais</div>
+          <div class="spec-rfs">RF-050, RF-051, RF-052 · Árvore de locais, setores, hierarquia · <a href="https://github.com/jhow-043/axion/pull/8" target="_blank">PR #8</a></div>
+        </div>
+        <div class="spec-deps">Deps: P04</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P07 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P07</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Catálogos Configuráveis</div>
+          <div class="spec-rfs">RF-060 a RF-064 · Prioridades, tipos de serviço, status, seed idempotente · <a href="https://github.com/jhow-043/axion/pull/9" target="_blank">PR #9</a></div>
+        </div>
+        <div class="spec-deps">Deps: P04</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P08 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P08</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Equipamentos</div>
+          <div class="spec-rfs">RF-070, RF-071 · CRUD equipamentos, QR code, vínculo com local · <a href="https://github.com/jhow-043/axion/pull/11" target="_blank">PR #11</a></div>
+        </div>
+        <div class="spec-deps">Deps: P06</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P09 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P09</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">Chamados: Núcleo &amp; Workflow</div>
+          <div class="spec-rfs">RF-080 a RF-092 · State machine, abertura, atribuição, transições, comentários · <a href="https://github.com/jhow-043/axion/pull/12" target="_blank">PR #12</a></div>
+        </div>
+        <div class="spec-deps">Deps: P06 ✓, P07 ✓, P08 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P10 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P10</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Timeline do Chamado</div>
+          <div class="spec-rfs">RF-100, RF-101 · Eventos imutáveis, audit trail por chamado · <a href="https://github.com/jhow-043/axion/pull/13" target="_blank">PR #13</a></div>
+        </div>
+        <div class="spec-deps">Deps: P09 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P11 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P11</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Anexos e Evidências (MinIO)</div>
+          <div class="spec-rfs">RF-110, RF-111, RF-112 · Upload, presigned URLs, tipos e tamanhos · <a href="https://github.com/jhow-043/axion/pull/14" target="_blank">PR #14</a></div>
+        </div>
+        <div class="spec-deps">Deps: P09 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P12 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P12</div>
+          <span class="priority-badge prio-critica">Crítica</span>
+        </div>
+        <div>
+          <div class="spec-title">SLA: Políticas, Motor e Jobs Celery</div>
+          <div class="spec-rfs">RF-120 a RF-127 · Políticas por prioridade, pausa/retomada, alertas Celery · <a href="https://github.com/jhow-043/axion/pull/15" target="_blank">PR #15</a></div>
+        </div>
+        <div class="spec-deps">Deps: P09 ✓ P07 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P13 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P13</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Encerramento, Validação e Auto-Fechamento</div>
+          <div class="spec-rfs">RF-130, RF-131, RF-132 · Avaliação do solicitante, auto-close em 72h · <a href="https://github.com/jhow-043/axion/pull/16" target="_blank">PR #16</a></div>
+        </div>
+        <div class="spec-deps">Deps: P09 ✓, P12 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P14 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P14</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Notificações In-App + WebSocket + E-mail</div>
+          <div class="spec-rfs">RF-140 a RF-145 · Redis pub/sub, preferências, Celery + SMTP</div>
+        </div>
+        <div class="spec-deps">Deps: P09 ✓, P12 ✓, P13 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P15 -->
+      <div class="spec-row" data-status="done">
+        <div>
+          <div class="spec-id">P15</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Dashboards Operacionais (Técnico &amp; Supervisor)</div>
+          <div class="spec-rfs">RF-150, RF-151 · Kanban drag-and-drop, carga por equipe, SLA em tempo real</div>
+        </div>
+        <div class="spec-deps">Deps: P09 ✓, P12 ✓, P14 ✓</div>
+        <span class="badge badge-done">Done</span>
+      </div>
+
+      <!-- P16 -->
+      <div class="spec-row" data-status="in-review">
+        <div>
+          <div class="spec-id">P16</div>
+          <span class="priority-badge prio-media">Média</span>
+        </div>
+        <div>
+          <div class="spec-title">Dashboard Gerencial &amp; Relatórios</div>
+          <div class="spec-rfs">RF-160, RF-161 · Gráficos Recharts, KPIs estratégicos, exportação CSV/Excel · <a href="https://github.com/jhow-043/axion/pull/23" target="_blank">PR #23</a></div>
+        </div>
+        <div class="spec-deps">Deps: P15 ✓</div>
+        <span class="badge badge-review">In-Review</span>
+      </div>
+
+      <!-- P17 -->
+      <div class="spec-row" data-status="in-review">
+        <div>
+          <div class="spec-id">P17</div>
+          <span class="priority-badge prio-media">Média</span>
+        </div>
+        <div>
+          <div class="spec-title">Auditoria &amp; Rastreabilidade</div>
+          <div class="spec-rfs">RF-170, RF-171 · audit_logs imutáveis, quem fez o quê e quando · <a href="https://github.com/jhow-043/axion/pull/23" target="_blank">PR #23</a></div>
+        </div>
+        <div class="spec-deps">Deps: P00 ✓, P01 ✓, P04 ✓</div>
+        <span class="badge badge-review">In-Review</span>
+      </div>
+
+      <!-- P18 -->
+      <div class="spec-row" data-status="in-review">
+        <div>
+          <div class="spec-id">P18</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Administração (Console de Configuração)</div>
+          <div class="spec-rfs">RF-180, RF-181, RF-182 · Console admin, gestão de tenants, soft delete · <a href="https://github.com/jhow-043/axion/pull/23" target="_blank">PR #23</a></div>
+        </div>
+        <div class="spec-deps">Deps: P04 ✓, P07 ✓, P12 ✓, P14 ✓</div>
+        <span class="badge badge-review">In-Review</span>
+      </div>
+
+      <!-- P19 -->
+      <div class="spec-row" data-status="in-progress">
+        <div>
+          <div class="spec-id">P19</div>
+          <span class="priority-badge prio-alta">Alta</span>
+        </div>
+        <div>
+          <div class="spec-title">Plataforma Super-Admin</div>
+          <div class="spec-rfs">RF-190 a RF-194 · Dashboard global, gestão de companies, provisionamento, soft delete</div>
+        </div>
+        <div class="spec-deps">Deps: P01 ✓, P04 ✓, P17 ✓, P18 ✓</div>
+        <span class="badge badge-approved">Em Andamento</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Backend + Frontend -->
+  <div class="grid-2">
+
+    <!-- Backend -->
+    <section>
+      <div class="section-title">Módulos Backend <span class="badge-count">backend/app/modules/</span></div>
+      <div class="module-grid">
+        <div class="module-card done">
+          <div class="module-name">auth</div>
+          <div class="module-files">models · repository · router · schemas · service</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P03 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">users</div>
+          <div class="module-files">models · repository · router · schemas · service · seed</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P04 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">teams</div>
+          <div class="module-files">models · repository · router · schemas · service</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P05 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">tenants</div>
+          <div class="module-files">models.py (base multi-tenant)</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P01 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">locations</div>
+          <div class="module-files">models · repository · router · schemas · service</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P06 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">catalog</div>
+          <div class="module-files">models · repository · router · schemas · service · seed</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P07 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">equipments</div>
+          <div class="module-files">models · repository · router · schemas · service</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P08 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">tickets</div>
+          <div class="module-files">models · repository · router · schemas · service · state_machine</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P09 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">timeline</div>
+          <div class="module-files">models · repository · service · TicketEventRepository</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P10 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">attachments</div>
+          <div class="module-files">models · repository · router · schemas · service · storage (MinIO)</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P11 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">sla</div>
+          <div class="module-files">models · repository · service · tasks (Celery)</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P12 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">closures</div>
+          <div class="module-files">models · repository · service · router · tasks (Celery)</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P13 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">notifications</div>
+          <div class="module-files">models · repository · service · router · tasks (Celery + WS)</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P14 ✓</span></div>
+        </div>
+        <div class="module-card impl">
+          <div class="module-name">dashboards</div>
+          <div class="module-files">repository · router · schemas · service · tests</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P15 ✓</span> <span class="badge badge-review" style="font-size:10px">P16 in-review</span></div>
+        </div>
+        <div class="module-card impl">
+          <div class="module-name">audit</div>
+          <div class="module-files">models · repository · router · schemas · service</div>
+          <div style="margin-top:7px"><span class="badge badge-review" style="font-size:10px">P17 in-review</span></div>
+        </div>
+        <div class="module-card impl">
+          <div class="module-name">administration</div>
+          <div class="module-files">repository · router · schemas · service · dashboard_repository</div>
+          <div style="margin-top:7px"><span class="badge badge-review" style="font-size:10px">P18 in-review</span> <span class="badge badge-approved" style="font-size:10px">P19 andando</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Frontend -->
+    <section>
+      <div class="section-title">Features Frontend <span class="badge-count">frontend/src/features/</span></div>
+      <div class="module-grid">
+        <div class="module-card done">
+          <div class="module-name">auth</div>
+          <div class="module-files">LoginPage · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P03 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">users</div>
+          <div class="module-files">UserList · UserForm · UserDetail · RoleAssignment · api · types</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P04 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">teams</div>
+          <div class="module-files">TeamList · TeamForm · TeamMembers · api · types</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P05 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">locations</div>
+          <div class="module-files">components · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P06 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">equipments</div>
+          <div class="module-files">components · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P08 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">tickets</div>
+          <div class="module-files">TicketList · TicketForm · TicketDetail · WorkflowActions · api · types</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P09 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">timeline</div>
+          <div class="module-files">TimelineView · TimelineEvent · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P10 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">attachments</div>
+          <div class="module-files">AttachmentList · AttachmentUpload · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P11 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">catalog</div>
+          <div class="module-files">api.ts · CRUD prioridades, status, categorias, motivos (via AdminConsole)</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P07 ✓</span> <span class="badge badge-review" style="font-size:10px">P18 in-review</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">sla</div>
+          <div class="module-files">SLAIndicator · SLABadge · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P12 ✓</span></div>
+        </div>
+        <div class="module-card done">
+          <div class="module-name">notifications</div>
+          <div class="module-files">NotificationBell · NotificationList · PreferencesPage · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P14 ✓</span></div>
+        </div>
+        <div class="module-card impl">
+          <div class="module-name">dashboard</div>
+          <div class="module-files">TechnicianDashboard · SupervisorDashboard · KanbanBoard · ManagerialDashboard · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-done" style="font-size:10px">P15 ✓</span> <span class="badge badge-review" style="font-size:10px">P16 in-review</span></div>
+        </div>
+        <div class="module-card impl">
+          <div class="module-name">administration</div>
+          <div class="module-files">AdminConsole · sections (Catalogs, Tenants, SLA, Audit…) · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-review" style="font-size:10px">P18 in-review</span></div>
+        </div>
+        <div class="module-card impl">
+          <div class="module-name">platform</div>
+          <div class="module-files">GlobalDashboard · CompanyList · CompanyProvisionModal · api.ts · types.ts</div>
+          <div style="margin-top:7px"><span class="badge badge-approved" style="font-size:10px">P19 andando</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Migrations -->
+  <section>
+    <div class="section-title">Migrations Alembic</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title" style="color:var(--done);margin-bottom:12px">Aplicadas (18)</div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">516e4009a8bd</div>
+            <div class="migration-desc">P01 · tabela tenants</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">7981c59a275b</div>
+            <div class="migration-desc">P03/P04 · users, roles, permissions, refresh_tokens</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">a1b2c3d4e5f6</div>
+            <div class="migration-desc">P05 · teams, team_members</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">b2c3d4e5f6a7</div>
+            <div class="migration-desc">P06 · sectors, locations</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">c3d4e5f6a7b8</div>
+            <div class="migration-desc">P07 · catalog (priorities, service_types, statuses)</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">d4e5f6a7b8c9</div>
+            <div class="migration-desc">P08 · equipments</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">e5f6a7b8c9d0</div>
+            <div class="migration-desc">P09 · tickets, comments, solutions</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">f6a7b8c9d0e1</div>
+            <div class="migration-desc">P10 · ticket_events (append-only)</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">a7b8c9d0e1f2</div>
+            <div class="migration-desc">P11 · attachments (MinIO metadata)</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">b8c9d0e1f2a3</div>
+            <div class="migration-desc">P12 · sla_policies, sla_trackers, sla_pauses</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">c9d0e1f2a3b4</div>
+            <div class="migration-desc">P13 · closures, validations, tenant_settings</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">d5e6f7a8b9c0</div>
+            <div class="migration-desc">P14 · notifications, notification_preferences</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">e6f7a8b9c0d1</div>
+            <div class="migration-desc">P15 · dashboard_snapshots, sla_summaries (views materializadas)</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">f7a8b9c0d1e2</div>
+            <div class="migration-desc">P16 · relatorio_exports, report_filters</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">e6f7a8b9c0d1</div>
+            <div class="migration-desc">P17 · audit_logs (append-only, imutável)</div>
+          </div>
+        </div>
+        <div class="migration-item">
+          <span class="migration-check">✓</span>
+          <div>
+            <div class="migration-hash">b9c0d1e2f3a4</div>
+            <div class="migration-desc">P18 · tenant_configs, system_settings, superadmin flags</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--review);margin-bottom:12px">Pendentes (1)</div>
+        <div class="migration-item">
+          <span style="color:var(--review);font-size:16px;flex-shrink:0">⏳</span>
+          <div>
+            <div class="migration-hash">f1a2b3c4d5e6</div>
+            <div class="migration-desc">P19 · tenants.is_system, tenants.deleted_at, ix_tenants_deleted_at</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RF Coverage -->
+  <section>
+    <div class="section-title">Cobertura de Requisitos Funcionais <span class="badge-count">187 RFs no total</span></div>
+    <div class="card">
+      <div style="margin-bottom:16px">
+        <div class="rf-row">
+          <div class="rf-label">Infraestrutura (P00)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">4/4</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Multi-Tenancy (P01)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">4/4</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Autenticação (P03)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">7/7</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Usuários/RBAC (P04)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">7/7</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Equipes (P05)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">3/3</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Setores/Locais (P06)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">3/3</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Catálogos (P07)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">5/5</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Equipamentos (P08)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">2/2</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Chamados (P09)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">13/13</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Timeline (P10)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">2/2</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Anexos (P11)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">3/3</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">SLA (P12)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">8/8</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Encerramento (P13)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">3/3</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Notificações (P14)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">6/6</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Dashboards Op. (P15)</div>
+          <div class="progress-bar"><div class="progress-fill fill-done" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--done)">2/2</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Ger. &amp; Relatórios (P16)</div>
+          <div class="progress-bar"><div class="progress-fill fill-review" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--review)">2/2</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Auditoria (P17)</div>
+          <div class="progress-bar"><div class="progress-fill fill-review" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--review)">2/2</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Admin (P18)</div>
+          <div class="progress-bar"><div class="progress-fill fill-review" style="width:100%"></div></div>
+          <div class="rf-count" style="color:var(--review)">3/3</div>
+        </div>
+        <div class="rf-row">
+          <div class="rf-label">Plataforma (P19)</div>
+          <div class="progress-bar"><div class="progress-fill fill-approved" style="width:60%"></div></div>
+          <div class="rf-count" style="color:var(--approved)">3/5</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-top:10px">
+        <span style="font-size:13px;color:var(--muted2)">Total coberto por código</span>
+        <span style="font-size:20px;font-weight:800;color:var(--done)">~47% · 88/187 RFs</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Milestones -->
+  <section>
+    <div class="section-title">Milestones de Entrega</div>
+    <div class="card">
+      <div class="timeline">
+
+        <div class="milestone">
+          <div class="milestone-dot dot-done">✓</div>
+          <div class="milestone-info">
+            <h3>Fundação &amp; Cadastros Base</h3>
+            <p>Base multi-tenant, auth JWT, RBAC, equipes, setores, catálogos e equipamentos — tudo mergeado no master.</p>
+            <div class="milestone-specs">
+              <span class="spec-pill done">P00</span>
+              <span class="spec-pill done">P01</span>
+              <span class="spec-pill done">P02</span>
+              <span class="spec-pill done">P03</span>
+              <span class="spec-pill done">P04</span>
+              <span class="spec-pill done">P05</span>
+              <span class="spec-pill done">P06</span>
+              <span class="spec-pill done">P07</span>
+              <span class="spec-pill done">P08</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone">
+          <div class="milestone-dot dot-done">✓</div>
+          <div class="milestone-info">
+            <h3>MVP Núcleo — Chamados Funcionando</h3>
+            <p>State machine de chamados, abertura, atribuição, comentários e stub de TimelineService — mergeado no master (PR #12).</p>
+            <div class="milestone-specs">
+              <span class="spec-pill done">P09 ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone">
+          <div class="milestone-dot dot-done">✓</div>
+          <div class="milestone-info">
+            <h3>MVP Operacional — SLA, Notificações &amp; Dashboards Operacionais</h3>
+            <p>SLA (P12), encerramento (P13), notificações WebSocket + e-mail (P14) e dashboards Técnico/Supervisor/Kanban (P15) concluídos e mergeados.</p>
+            <div class="milestone-specs">
+              <span class="spec-pill done">P10 ✓</span>
+              <span class="spec-pill done">P11 ✓</span>
+              <span class="spec-pill done">P12 ✓</span>
+              <span class="spec-pill done">P13 ✓</span>
+              <span class="spec-pill done">P14 ✓</span>
+              <span class="spec-pill done">P15 ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone">
+          <div class="milestone-dot dot-next">→</div>
+          <div class="milestone-info">
+            <h3>MVP Completo — Gerencial, Auditoria &amp; Admin</h3>
+            <p>Dashboard gerencial com KPIs e exportação CSV (P16), auditoria imutável de ações (P17) e console de administração multi-tenant (P18) — todos implementados no <a href="https://github.com/jhow-043/axion/pull/23" target="_blank">PR #23</a>, aguardando merge.</p>
+            <div class="milestone-specs">
+              <span class="spec-pill next">P16 → PR #23</span>
+              <span class="spec-pill next">P17 → PR #23</span>
+              <span class="spec-pill next">P18 → PR #23</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="milestone">
+          <div class="milestone-dot dot-next">→</div>
+          <div class="milestone-info">
+            <h3>Pós-MVP — Plataforma Super-Admin</h3>
+            <p>Dashboard global de métricas cross-tenant, gestão de companies, provisionamento e soft delete de tenants (P19). Permite que o super-admin gerencie toda a instância SaaS.</p>
+            <div class="milestone-specs">
+              <span class="spec-pill next">P19 — em andamento</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Risks -->
+  <section>
+    <div class="section-title">Riscos e Alertas</div>
+    <div class="risk-list">
+
+      <div class="risk-card">
+        <div class="risk-icon">🟢</div>
+        <div>
+          <div class="risk-title">WebSocket multi-instância (P14) — concluído e mergeado</div>
+          <div class="risk-desc">Canal <code>notifications:{user_id}</code> via Redis pub/sub implementado em P14. Risco mitigado; monitorar latência em produção multi-instância.</div>
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-icon">🟢</div>
+        <div>
+          <div class="risk-title">Kanban drag-and-drop (P15) — dnd-kit implementado</div>
+          <div class="risk-desc">Transições de estado via drag-and-drop usam dnd-kit com validação de state machine no backend. Risco de conflito concorrente mitigado com otimistic update + rollback no frontend.</div>
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-icon">🟠</div>
+        <div>
+          <div class="risk-title">Isolamento de tenant crítico — INV-01</div>
+          <div class="risk-desc">Qualquer bypass do BaseRepository é brecha de segurança. Reviews de PR devem incluir checklist de isolamento em cada módulo novo.</div>
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-icon">🟠</div>
+        <div>
+          <div class="risk-title">Jobs Celery — tenant_id explícito (INV-04)</div>
+          <div class="risk-desc">ContextVar não existe no worker Celery. P12 (SLA jobs) e P13 (auto-fechamento) devem sempre receber tenant_id como argumento explícito.</div>
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-icon">🟡</div>
+        <div>
+          <div class="risk-title">Concorrência no auto-fechamento (P13)</div>
+          <div class="risk-desc">Solicitante pode aprovar exatamente quando Celery job executa auto-close. Usar SELECT FOR UPDATE ou pré-condições de estado para evitar dupla transição.</div>
+        </div>
+      </div>
+
+      <div class="risk-card">
+        <div class="risk-icon">🟡</div>
+        <div>
+          <div class="risk-title">Performance de dashboards (P15–P16)</div>
+          <div class="risk-desc">Queries de agregação em tabelas de tickets grandes. Índices compostos foram planejados desde P09. Considerar views materializadas em P15/P16 se volumes justificarem.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Stack -->
+  <section>
+    <div class="section-title">Stack Tecnológica</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Backend</div>
+        <div class="stack-grid">
+          <span class="stack-pill">Python 3.12</span>
+          <span class="stack-pill">FastAPI 0.115+</span>
+          <span class="stack-pill">SQLAlchemy 2.0 async</span>
+          <span class="stack-pill">Pydantic v2</span>
+          <span class="stack-pill">Alembic 1.13+</span>
+          <span class="stack-pill">Celery 5.x</span>
+          <span class="stack-pill">Argon2</span>
+          <span class="stack-pill">python-jose (JWT)</span>
+          <span class="stack-pill">pydantic-settings</span>
+          <span class="stack-pill">ruff</span>
+          <span class="stack-pill">pytest + pytest-asyncio</span>
+          <span class="stack-pill">uv</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Frontend &amp; Infra</div>
+        <div class="stack-grid">
+          <span class="stack-pill">React 18+</span>
+          <span class="stack-pill">TypeScript 5+</span>
+          <span class="stack-pill">Vite 5+</span>
+          <span class="stack-pill">TanStack Query v5</span>
+          <span class="stack-pill">React Router v6</span>
+          <span class="stack-pill">shadcn/ui + Radix</span>
+          <span class="stack-pill">Tailwind CSS v3</span>
+          <span class="stack-pill">Recharts</span>
+          <span class="stack-pill">dnd-kit</span>
+          <span class="stack-pill">PostgreSQL 16</span>
+          <span class="stack-pill">Redis 7+</span>
+          <span class="stack-pill">MinIO</span>
+          <span class="stack-pill">Docker Compose</span>
+          <span class="stack-pill">Nginx</span>
+          <span class="stack-pill">pnpm</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>Gestão de Manutenção Industrial · SDD Workflow · Branch: <strong>feature/018-administracao</strong> · <a href="https://github.com/jhow-043/axion/pull/23" target="_blank">PR #23</a> aberto (P16 · P17 · P18) · P19 em andamento</span>
+    <span>Cobertura mínima de testes: 90% (CI) · Invariantes: <a href="../docs/constitution.md">docs/constitution.md</a></span>
+  </div>
+
+</div>
+
+<script>
+function filterSpecs(status, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.spec-row').forEach(row => {
+    if (status === 'all') {
+      row.style.display = '';
+    } else {
+      row.style.display = row.dataset.status === status ? '' : 'none';
+    }
+  });
+}
+</script>
+</body>
+</html>
