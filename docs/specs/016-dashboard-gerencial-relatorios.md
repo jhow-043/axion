@@ -1,7 +1,7 @@
 ---
 id: P16
 slug: dashboard-gerencial-relatorios
-status: approved
+status: done
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04, P09, P12, P15]

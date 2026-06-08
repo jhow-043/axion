@@ -1,7 +1,7 @@
 ---
 id: P10
 slug: timeline
-status: in-progress
+status: done
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04, P09]
