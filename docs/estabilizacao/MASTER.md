@@ -41,7 +41,7 @@
 | EST-FE-001 | SLA / Frontend | Bloqueador | `npm run build` falha: dependencia `date-fns` ausente em `SlaIndicator` | - |
 | EST-FE-002 | Dashboards / Frontend | Bloqueador | `npm run build` falha: `data` possivelmente indefinido em `KanbanBoard` | #27 |
 | EST-FE-003 | Frontend / Tooling | Alto | `npm run lint` falha: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | - |
-| EST-DEV-001 | Dev scripts | Alto | `start.ps1` imprime erros de PowerShell ao mostrar PIDs de Celery/Vite | - |
+| EST-DEV-001 | Dev scripts | Alto | `start.ps1` imprime erros de PowerShell ao mostrar PIDs de Celery/Vite | #30 |
 | EST-FE-004 | Navegacao / Frontend | Medio | React Router emite warning `No HydrateFallback element provided` no console | - |
 | EST-AUTH-001 | Auth / Frontend | Medio | Console mostra repetidos 401 em refresh/login; confirmar se e fluxo esperado ou bug | - |
 | EST-BE-001 | Backend / Tooling | Alto | `uv run ruff check .` falha com 59 ocorrencias em migrations, reports, dashboards e testes | - |
@@ -80,6 +80,7 @@ Data: 2026-06-08
 |--------|--------|-----------|
 | EST-FE-001 | Mergeado | PR #26 |
 | EST-FE-002 | Mergeado | Issue #27; PR #28; `npm run build`; `npm run test` |
+| EST-DEV-001 | Corrigido localmente | Issue #30; validação de sintaxe PowerShell |
 
 ## Novos achados manuais
 

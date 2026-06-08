@@ -24,10 +24,10 @@ function Write-Fail($msg) { Write-Host "    ERRO $msg" -ForegroundColor Red; exi
 # ── 1. Docker Compose ─────────────────────────────────────────────────────────
 
 if (-not $SkipDocker) {
-    Write-Step "Subindo serviços Docker (postgres, redis, minio, mailhog)..."
+    Write-Step "Subindo servicos Docker (postgres, redis, minio, mailhog)..."
     docker compose -f (Join-Path $Root "docker-compose.yml") up -d
     if ($LASTEXITCODE -ne 0) { Write-Fail "docker compose up falhou." }
-    Write-Ok "Contêineres rodando."
+    Write-Ok "Conteineres rodando."
 }
 
 # ── 2. Aguarda Postgres ───────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ while ($tries -lt 30) {
     $tries++
     Start-Sleep -Seconds 2
 }
-if ($tries -ge 30) { Write-Fail "PostgreSQL não respondeu após 60s." }
+if ($tries -ge 30) { Write-Fail "PostgreSQL nao respondeu apos 60s." }
 
 # ── 3. Migrations ─────────────────────────────────────────────────────────────
 
@@ -59,7 +59,7 @@ if ($Seed) {
     uv run python scripts/seed_dev.py
     if ($LASTEXITCODE -ne 0) { Pop-Location; Write-Fail "seed_dev.py falhou." }
     Pop-Location
-    Write-Ok "Seed concluído."
+    Write-Ok "Seed concluido."
 }
 
 # ── 5. Uvicorn ────────────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ Write-Step "Iniciando backend (uvicorn)..."
 $uvProc = Start-Process powershell `
     -ArgumentList "-NoExit", "-Command", "cd '$BackendDir'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
     -PassThru
-Write-Ok "Uvicorn iniciado (PID $($uvProc.Id)) — porta 8000"
+Write-Ok ("Uvicorn iniciado (PID {0}) - porta 8000" -f $uvProc.Id)
 
 Start-Sleep -Seconds 3
 
@@ -78,7 +78,7 @@ Write-Step "Iniciando Celery worker..."
 $celProc = Start-Process powershell `
     -ArgumentList "-NoExit", "-Command", "cd '$BackendDir'; uv run celery -A app.core.celery_app worker --loglevel=info --concurrency=2" `
     -PassThru
-Write-Ok "Celery iniciado (PID $($celProc.Id))"
+Write-Ok ("Celery iniciado (PID {0})" -f $celProc.Id)
 
 # ── 7. Vite dev server ────────────────────────────────────────────────────────
 
@@ -86,7 +86,7 @@ Write-Step "Iniciando frontend (Vite)..."
 $viteProc = Start-Process powershell `
     -ArgumentList "-NoExit", "-Command", "cd '$FrontendDir'; npm run dev" `
     -PassThru
-Write-Ok "Vite iniciado (PID $($viteProc.Id)) — porta 5173"
+Write-Ok ("Vite iniciado (PID {0}) - porta 5173" -f $viteProc.Id)
 
 # ── Salva PIDs ────────────────────────────────────────────────────────────────
 
@@ -96,14 +96,14 @@ Write-Ok "Vite iniciado (PID $($viteProc.Id)) — porta 5173"
 # ── Resumo ────────────────────────────────────────────────────────────────────
 
 Write-Host ""
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "==================================================" -ForegroundColor DarkGray
 Write-Host "  Stack de desenvolvimento rodando" -ForegroundColor White
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "==================================================" -ForegroundColor DarkGray
 Write-Host "  Backend API  : http://localhost:8000" -ForegroundColor Yellow
 Write-Host "  API Docs     : http://localhost:8000/docs" -ForegroundColor Yellow
 Write-Host "  Frontend     : http://localhost:5173" -ForegroundColor Yellow
 Write-Host "  MinIO Console: http://localhost:9001  (minioadmin/minioadmin)" -ForegroundColor Yellow
 Write-Host "  MailHog      : http://localhost:8025" -ForegroundColor Yellow
-Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+Write-Host "==================================================" -ForegroundColor DarkGray
 Write-Host "  Para parar tudo: .\stop.ps1" -ForegroundColor DarkGray
 Write-Host ""
