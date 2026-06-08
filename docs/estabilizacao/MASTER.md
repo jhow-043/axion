@@ -38,6 +38,11 @@
 
 | EST-ID | Módulo | Classificação | Descrição resumida | Issue GH# |
 |--------|--------|--------------|-------------------|-----------|
+| EST-FE-001 | SLA / Frontend | Bloqueador | `npm run build` falha: dependencia `date-fns` ausente em `SlaIndicator` | - |
+| EST-FE-002 | Dashboards / Frontend | Bloqueador | `npm run build` falha: `data` possivelmente indefinido em `KanbanBoard` | - |
+| EST-FE-003 | Frontend / Tooling | Alto | `npm run lint` falha: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | - |
+| EST-BE-001 | Backend / Tooling | Alto | `uv run ruff check .` falha com 59 ocorrencias em migrations, reports, dashboards e testes | - |
+| EST-BE-002 | Backend / Ambiente | Medio | `uv run pytest` falha quando `DEBUG=release`; suite passa ao executar com `DEBUG=false` | - |
 | — | — | — | *A preencher na Fase A* | — |
 
 **Totais por classificação:**
@@ -45,6 +50,32 @@
 - Alto: 0
 - Médio: 0
 - Baixo: 0
+
+Contagem atual da Fase A:
+- Bloqueador: 2
+- Alto: 2
+- Medio: 1
+- Baixo: 0
+
+## Ultima varredura automatizada
+
+Data: 2026-06-08
+
+| Comando | Resultado |
+|---------|-----------|
+| `npm run build` | Falhou: EST-FE-001, EST-FE-002 |
+| `npm run test` | Passou: 8 arquivos, 35 testes |
+| `npm run lint` | Falhou: EST-FE-003 |
+| `uv sync --extra dev` | Passou |
+| `uv run pytest tests/administration -q` com `DEBUG=false` | 33 testes passaram; falha apenas no gate de cobertura por execucao parcial |
+| `uv run pytest -q` com `DEBUG=false` | Passou: 690 testes, cobertura 93,78% |
+| `uv run ruff check .` | Falhou: EST-BE-001 |
+
+## Correcoes em andamento
+
+| EST-ID | Status | Validacao |
+|--------|--------|-----------|
+| EST-FE-001 | Corrigido localmente | `npm run test`; `npm run build` nao aponta mais erro de `date-fns`, segue bloqueado por EST-FE-002 |
 
 ---
 
