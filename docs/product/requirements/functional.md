@@ -174,3 +174,13 @@
 | RF-180 | Console de configuração para Admin: usuários, equipes, catálogos, SLA, notificações | P18 |
 | RF-181 | Provisionamento de tenant com papéis e configurações padrão | P18 |
 | RF-182 | Ativação/desativação de tenant pelo super-admin | P18 |
+
+## Plataforma Super-Admin
+
+| ID | Requisito | Spec |
+|----|-----------|------|
+| RF-190 | Dashboard global com métricas agregadas de todas as empresas (tenants) | P19 |
+| RF-191 | Listagem paginada de companies com contadores de usuários e chamados | P19 |
+| RF-192 | Provisionamento de novo tenant pelo super-admin via modal | P19 |
+| RF-193 | Soft delete de tenant com ocultação automática em todas as queries | P19 |
+| RF-194 | Tenant do sistema (`is_system`) protegido contra exclusão | P19 |

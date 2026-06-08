@@ -56,8 +56,7 @@ alembic/versions/__pycache__/
 # MCP / Claude local settings
 .claude/settings.local.json
 
-# Artefatos gerados (dashboards, relatórios HTML)
-docs/progress.html
+# Artefatos gerados (coverage, relatórios gerados automaticamente)
 backend/docs/progress.html
 backend/coverage.json
 
