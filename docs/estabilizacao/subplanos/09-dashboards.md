@@ -87,6 +87,7 @@
 ## Evidencias da correcao
 
 - Issue: #27
+- PR: #28
 - Branch: `fix/EST-FE-002-kanban-data-narrowing`
 - 2026-06-08: `npm run build` passou.
 - 2026-06-08: `npm run test` passou com 37 testes.
