@@ -3,43 +3,56 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
+from app.core.config import Settings
+
+_REQUIRED = {
+    "JWT_ALGORITHM": "HS256",
+    "ACCESS_TOKEN_EXPIRE_MINUTES": "30",
+    "REFRESH_TOKEN_EXPIRE_DAYS": "7",
+}
+
+
+def _base_env(monkeypatch, **overrides) -> None:
+    """Set a minimal valid env, removing keys whose value is None."""
+    for key, val in {**_REQUIRED, **overrides}.items():
+        if val is None:
+            monkeypatch.delenv(key, raising=False)
+        else:
+            monkeypatch.setenv(key, str(val))
+
 
 class TestSettingsRequired:
     def test_missing_database_url_raises_validation_error(self, monkeypatch) -> None:
-        from app.core.config import Settings  # ensure module is cached before delenv
-
-        monkeypatch.delenv("DATABASE_URL", raising=False)
-        monkeypatch.delenv("SECRET_KEY", raising=False)
-
+        _base_env(monkeypatch, DATABASE_URL=None, SECRET_KEY="test-secret")
         with pytest.raises((ValidationError, Exception)):
-            Settings()
+            Settings(_env_file=None)
 
     def test_missing_secret_key_raises_validation_error(self, monkeypatch) -> None:
-        from app.core.config import Settings  # ensure module is cached before delenv
-
-        monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
-        monkeypatch.delenv("SECRET_KEY", raising=False)
-
+        _base_env(
+            monkeypatch,
+            DATABASE_URL="sqlite+aiosqlite:///./test.db",
+            SECRET_KEY=None,
+        )
         with pytest.raises((ValidationError, Exception)):
-            Settings()
+            Settings(_env_file=None)
 
     def test_settings_loads_when_required_fields_are_set(self, monkeypatch) -> None:
-        monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
-        monkeypatch.setenv("SECRET_KEY", "test-secret")
-
-        from app.core.config import Settings
-
-        s = Settings()
+        _base_env(
+            monkeypatch,
+            DATABASE_URL="sqlite+aiosqlite:///./test.db",
+            SECRET_KEY="test-secret",
+        )
+        s = Settings(_env_file=None)
         assert s.DATABASE_URL == "sqlite+aiosqlite:///./test.db"
         assert s.SECRET_KEY == "test-secret"
 
     def test_non_sensitive_fields_have_defaults(self, monkeypatch) -> None:
-        monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
-        monkeypatch.setenv("SECRET_KEY", "test-secret")
-
-        from app.core.config import Settings
-
-        s = Settings()
+        _base_env(
+            monkeypatch,
+            DATABASE_URL="sqlite+aiosqlite:///./test.db",
+            SECRET_KEY="test-secret",
+        )
+        s = Settings(_env_file=None)
         assert s.DEBUG is False
         assert s.LOG_LEVEL == "INFO"
         assert isinstance(s.CORS_ORIGINS, list)
