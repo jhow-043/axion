@@ -63,7 +63,7 @@
 
 | EST-ID | Classificação | Descrição | Arquivo:Linha | Reprodução |
 |--------|--------------|-----------|---------------|------------|
-| EST-AUTH-001 | Medio | Console mostra varios 401 em `/auth/refresh` e `/auth/login`; separar 401 esperado sem sessao/credencial invalida de bug com seed correto | `frontend/src/app/providers/AuthProvider.tsx`, `frontend/src/shared/api/client.ts` | Abrir app e testar login apos `.\start.ps1 -Seed` |
+| EST-AUTH-001 | Medio | Console mostra varios 401 em `/auth/refresh` e `/auth/login`; separar 401 esperado sem sessao/credencial invalida de bug com seed correto (Issue #33) | `frontend/src/app/providers/AuthProvider.tsx`, `frontend/src/shared/api/client.ts` | Abrir app e testar login apos `.\start.ps1 -Seed` |
 | — | — | *A preencher* | — | — |
 
 ---
