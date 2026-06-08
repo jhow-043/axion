@@ -81,6 +81,7 @@
 
 | EST-ID | Classificação | Descrição | Arquivo:Linha | Reprodução |
 |--------|--------------|-----------|---------------|------------|
+| EST-FE-002 | Bloqueador | Build frontend falha porque o handler de drag usa `data.columns` quando o TypeScript ainda considera `data` possivelmente indefinido | `frontend/src/features/dashboards/components/KanbanBoard.tsx:137` | `cd frontend && npm run build` |
 | — | — | *A preencher* | — | — |
 
 ---

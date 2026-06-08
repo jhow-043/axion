@@ -74,7 +74,15 @@
 
 | EST-ID | Classificação | Descrição | Arquivo:Linha | Reprodução |
 |--------|--------------|-----------|---------------|------------|
+| EST-FE-001 | Bloqueador | Build frontend falha por dependencia `date-fns` ausente usada no indicador de SLA | `frontend/src/features/sla/components/SlaIndicator.tsx:1` | `cd frontend && npm run build` |
 | — | — | *A preencher* | — | — |
+
+## Evidencias da correcao
+
+- 2026-06-08: removida a dependencia nao declarada `date-fns` do `SlaIndicator`.
+- 2026-06-08: `npm run test -- src/utils/__tests__/dates.test.ts` passou com 4 testes.
+- 2026-06-08: `npm run test` passou com 37 testes.
+- 2026-06-08: `npm run build` nao aponta mais erro de `date-fns`; segue bloqueado por EST-FE-002.
 
 ---
 
