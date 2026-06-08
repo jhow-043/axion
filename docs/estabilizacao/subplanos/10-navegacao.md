@@ -48,7 +48,7 @@
 
 | EST-ID | Classificação | Descrição | Arquivo:Linha | Reprodução |
 |--------|--------------|-----------|---------------|------------|
-| EST-FE-003 | Alto | Lint frontend nao executa: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | `frontend/package.json` | `cd frontend && npm run lint` |
+| EST-FE-003 | Alto | Lint frontend nao executa: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config (Issue #35) | `frontend/package.json` | `cd frontend && npm run lint` |
 | EST-FE-004 | Medio | React Router emite warning `No HydrateFallback element provided` no console do navegador (Issue #32) | `frontend/src/app/router.tsx` | Abrir `http://localhost:5173` com Vite em dev |
 | — | — | *A preencher* | — | — |
 

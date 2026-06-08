@@ -40,12 +40,12 @@
 |--------|--------|--------------|-------------------|-----------|
 | EST-FE-001 | SLA / Frontend | Bloqueador | `npm run build` falha: dependencia `date-fns` ausente em `SlaIndicator` | - |
 | EST-FE-002 | Dashboards / Frontend | Bloqueador | `npm run build` falha: `data` possivelmente indefinido em `KanbanBoard` | #27 |
-| EST-FE-003 | Frontend / Tooling | Alto | `npm run lint` falha: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | - |
+| EST-FE-003 | Frontend / Tooling | Alto | `npm run lint` falha: ESLint 9 exige `eslint.config.*`, mas o projeto nao possui flat config | #35 |
 | EST-DEV-001 | Dev scripts | Alto | `start.ps1` imprime erros de PowerShell ao mostrar PIDs de Celery/Vite | #30 |
 | EST-FE-004 | Navegacao / Frontend | Medio | React Router emite warning `No HydrateFallback element provided` no console | #32 |
 | EST-AUTH-001 | Auth / Frontend | Medio | Console mostra repetidos 401 em refresh/login; confirmar se e fluxo esperado ou bug | #33 |
-| EST-BE-001 | Backend / Tooling | Alto | `uv run ruff check .` falha com 59 ocorrencias em migrations, reports, dashboards e testes | - |
-| EST-BE-002 | Backend / Ambiente | Medio | `uv run pytest` falha quando `DEBUG=release`; suite passa ao executar com `DEBUG=false` | - |
+| EST-BE-001 | Backend / Tooling | Alto | `uv run ruff check .` falha com 59 ocorrencias em migrations, reports, dashboards e testes | #36 |
+| EST-BE-002 | Backend / Ambiente | Medio | `uv run pytest` falha quando `DEBUG=release`; suite passa ao executar com `DEBUG=false` | #37 |
 | — | — | — | *A preencher na Fase A* | — |
 
 **Totais por classificação:**
@@ -91,6 +91,14 @@ Data: 2026-06-08
 | EST-DEV-001 | `.\start.ps1` mostra `PID : O termo 'PID' nao e reconhecido` nas linhas de Celery/Vite | Catalogado |
 | EST-FE-004 | Console do navegador mostra `No HydrateFallback element provided` | Issue #32 aberta |
 | EST-AUTH-001 | Console mostra 401 em `/auth/refresh` e `/auth/login`; requer reproducao com `.\start.ps1 -Seed` e credenciais seed | Issue #33 aberta |
+
+## Issues de tooling e ambiente
+
+| EST-ID | Issue | Reproducao |
+|--------|-------|------------|
+| EST-FE-003 | #35 | `cd frontend && npm run lint` |
+| EST-BE-001 | #36 | `cd backend && uv run ruff check .` |
+| EST-BE-002 | #37 | `DEBUG=release` herdado do ambiente e `cd backend && uv run pytest -q` |
 
 ---
 
