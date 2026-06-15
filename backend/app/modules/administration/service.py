@@ -19,6 +19,7 @@ from app.modules.administration.schemas import (
 )
 from app.modules.catalog.seed import seed_catalog_defaults
 from app.modules.closures.models import TenantSettings
+from app.modules.hub.seed import seed_manutencao_for_tenant
 from app.modules.users.models import User
 from app.modules.users.seed import seed_default_roles_and_permissions
 
@@ -68,6 +69,7 @@ class AdminService:
         await seed_default_roles_and_permissions(self._db, tenant.id)
         await seed_catalog_defaults(self._db, tenant.id)
         await _seed_tenant_settings(self._db, tenant.id)
+        await seed_manutencao_for_tenant(self._db, tenant.id)
 
         # Create initial admin user for the new tenant
         await _create_admin_user(self._db, tenant.id, data)

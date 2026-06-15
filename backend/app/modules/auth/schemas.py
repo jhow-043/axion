@@ -27,4 +27,5 @@ class UserMeResponse(BaseModel):
     tenant_id: UUID
     roles: list[str]
     permissions: list[str]
+    enabled_modules: list[str]
     is_active: bool

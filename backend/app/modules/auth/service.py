@@ -11,6 +11,7 @@ from app.core.security import (
 )
 from app.modules.auth.repository import RefreshTokenRepository, UserAuthRepository
 from app.modules.auth.schemas import TokenResponse, UserMeResponse
+from app.modules.hub.repository import ModuleRepository
 from app.modules.users.models import User
 
 _INVALID_CREDENTIALS_MSG = "Email ou senha incorretos."
@@ -33,9 +34,11 @@ class AuthService:
         self,
         user_repo: UserAuthRepository,
         token_repo: RefreshTokenRepository,
+        module_repo: ModuleRepository | None = None,
     ) -> None:
         self._users = user_repo
         self._tokens = token_repo
+        self._modules = module_repo
 
     async def login(self, email: str, password: str) -> tuple[TokenResponse, str]:
         """Returns (TokenResponse, raw_refresh_token).
@@ -93,6 +96,11 @@ class AuthService:
     async def get_me(self, user: User) -> UserMeResponse:
         roles = await self._users.get_role_codes(user.id)
         permissions = await self._users.get_permissions(user.id)
+        enabled_modules = (
+            await self._modules.list_enabled_for_tenant(user.tenant_id)
+            if self._modules is not None
+            else []
+        )
         return UserMeResponse(
             id=user.id,
             name=user.name,
@@ -100,6 +108,7 @@ class AuthService:
             tenant_id=user.tenant_id,
             roles=roles,
             permissions=permissions,
+            enabled_modules=enabled_modules,
             is_active=user.is_active,
         )
 
