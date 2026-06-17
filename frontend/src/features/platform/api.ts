@@ -2,8 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/shared/api/client";
 import type {
   GlobalDashboardResponse,
+  ModuleCatalogItem,
   TenantCreate,
   TenantListResponse,
+  TenantModulesResponse,
   TenantResponse,
   TenantUpdate,
 } from "./types";
@@ -16,6 +18,8 @@ const platformKeys = {
   tenantList: (page: number, pageSize: number) =>
     [...platformKeys.tenants, "list", page, pageSize] as const,
   tenantDetail: (id: string) => [...platformKeys.tenants, "detail", id] as const,
+  moduleCatalog: ["platform", "modules", "catalog"] as const,
+  tenantModules: (tenantId: string) => ["platform", "tenants", tenantId, "modules"] as const,
 };
 
 export function useGlobalDashboard(page = 1, pageSize = 20) {
@@ -115,6 +119,55 @@ export function useDeleteCompany() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: platformKeys.all });
+    },
+  });
+}
+
+export function usePlatformModuleCatalog() {
+  return useQuery({
+    queryKey: platformKeys.moduleCatalog,
+    queryFn: async () => {
+      const { data } = await apiClient.get<ModuleCatalogItem[]>("/admin/platform/modules");
+      return data;
+    },
+  });
+}
+
+export function useTenantModules(tenantId: string) {
+  return useQuery({
+    queryKey: platformKeys.tenantModules(tenantId),
+    queryFn: async () => {
+      const { data } = await apiClient.get<TenantModulesResponse>(
+        `/admin/platform/tenants/${tenantId}/modules`,
+      );
+      return data;
+    },
+    enabled: Boolean(tenantId),
+  });
+}
+
+export function useEnableModule(tenantId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (moduleId: string) => {
+      await apiClient.post(`/admin/platform/tenants/${tenantId}/modules`, {
+        module_id: moduleId,
+      });
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: platformKeys.tenantModules(tenantId) });
+    },
+  });
+}
+
+export function useRevokeModule(tenantId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (moduleId: string) => {
+      await apiClient.delete(`/admin/platform/tenants/${tenantId}/modules/${moduleId}`);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: platformKeys.tenantModules(tenantId) });
     },
   });
 }

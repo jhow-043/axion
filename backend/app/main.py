@@ -27,6 +27,7 @@ from app.modules.closures.router import admin_router as closures_admin_router
 from app.modules.closures.router import tickets_closures_router
 from app.modules.dashboards.router import router as dashboards_router
 from app.modules.equipments.router import router as equipments_router
+from app.modules.hub.platform_router import router as platform_modules_router
 from app.modules.locations.router import locations_router, sectors_router
 from app.modules.notifications.router import notifications_router, ws_router
 from app.modules.reports.router import router as reports_router
@@ -106,6 +107,7 @@ def create_app() -> FastAPI:
     app.include_router(ws_router)
     app.include_router(audit_router, prefix="/api/v1")
     app.include_router(administration_router, prefix="/api/v1")
+    app.include_router(platform_modules_router, prefix="/api/v1")
 
     return app
 

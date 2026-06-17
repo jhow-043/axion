@@ -50,3 +50,22 @@ export interface TenantUpdate {
   name?: string;
   slug?: string;
 }
+
+export interface ModuleCatalogItem {
+  id: string;
+  code: string;
+  name: string;
+  icon: string | null;
+  is_active: boolean;
+}
+
+export interface TenantEnabledModule {
+  module_id: string;
+  module_code: string;
+  enabled_at: string;
+}
+
+export interface TenantModulesResponse {
+  catalog: ModuleCatalogItem[];
+  enabled: TenantEnabledModule[];
+}

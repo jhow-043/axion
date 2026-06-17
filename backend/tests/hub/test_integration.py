@@ -205,3 +205,171 @@ class TestProvisionTenantSeeding:
 
         repo = ModuleRepository(db_session)
         assert await repo.is_enabled(new_tenant_id, "manutencao") is True
+
+
+# ── P21: Platform module management endpoint tests ─────────────────────────────
+
+
+class TestListModuleCatalog:
+    async def test_system_admin_lists_catalog(
+        self, super_admin_client, manutencao_module
+    ):
+        r = await super_admin_client.get("/api/v1/admin/platform/modules")
+        assert r.status_code == 200
+        data = r.json()
+        assert isinstance(data, list)
+        assert any(m["code"] == "manutencao" for m in data)
+
+    async def test_non_system_admin_forbidden(self, regular_platform_client):
+        r = await regular_platform_client.get("/api/v1/admin/platform/modules")
+        assert r.status_code == 403
+
+    async def test_unauthenticated_returns_401(self, db_session):
+        from httpx import ASGITransport, AsyncClient
+        from app.core.deps import get_db
+        from app.main import app
+
+        async def override():
+            yield db_session
+
+        app.dependency_overrides[get_db] = override
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
+            r = await c.get("/api/v1/admin/platform/modules")
+        app.dependency_overrides.pop(get_db, None)
+        assert r.status_code == 401
+
+
+class TestGetTenantModules:
+    async def test_returns_catalog_and_enabled_for_tenant(
+        self, super_admin_client, target_tenant, manutencao_module, db_session
+    ):
+        from app.modules.hub.seed import seed_manutencao_for_tenant
+
+        await seed_manutencao_for_tenant(db_session, target_tenant.id)
+
+        r = await super_admin_client.get(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules"
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert "catalog" in data
+        assert "enabled" in data
+        assert any(m["code"] == "manutencao" for m in data["catalog"])
+        assert any(e["module_code"] == "manutencao" for e in data["enabled"])
+
+    async def test_nonexistent_tenant_returns_404(self, super_admin_client):
+        import uuid
+
+        r = await super_admin_client.get(
+            f"/api/v1/admin/platform/tenants/{uuid.uuid4()}/modules"
+        )
+        assert r.status_code == 404
+
+    async def test_non_system_admin_forbidden(self, regular_platform_client, target_tenant):
+        r = await regular_platform_client.get(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules"
+        )
+        assert r.status_code == 403
+
+
+class TestEnableTenantModule:
+    async def test_enables_module_for_tenant(
+        self, super_admin_client, target_tenant, manutencao_module, db_session
+    ):
+        r = await super_admin_client.post(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules",
+            json={"module_id": str(manutencao_module.id)},
+        )
+        assert r.status_code == 200
+
+        from app.modules.hub.repository import ModuleRepository
+
+        repo = ModuleRepository(db_session)
+        assert await repo.is_enabled(target_tenant.id, "manutencao") is True
+
+    async def test_enable_is_idempotent(
+        self, super_admin_client, target_tenant, manutencao_module, db_session
+    ):
+        from app.modules.hub.seed import seed_manutencao_for_tenant
+
+        await seed_manutencao_for_tenant(db_session, target_tenant.id)
+
+        r = await super_admin_client.post(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules",
+            json={"module_id": str(manutencao_module.id)},
+        )
+        assert r.status_code == 200
+
+    async def test_unknown_module_returns_404(
+        self, super_admin_client, target_tenant
+    ):
+        import uuid
+
+        r = await super_admin_client.post(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules",
+            json={"module_id": str(uuid.uuid4())},
+        )
+        assert r.status_code == 404
+
+    async def test_unknown_tenant_returns_404(self, super_admin_client, manutencao_module):
+        import uuid
+
+        r = await super_admin_client.post(
+            f"/api/v1/admin/platform/tenants/{uuid.uuid4()}/modules",
+            json={"module_id": str(manutencao_module.id)},
+        )
+        assert r.status_code == 404
+
+    async def test_non_system_admin_forbidden(
+        self, regular_platform_client, target_tenant, manutencao_module
+    ):
+        r = await regular_platform_client.post(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules",
+            json={"module_id": str(manutencao_module.id)},
+        )
+        assert r.status_code == 403
+
+
+class TestRevokeTenantModule:
+    async def test_revokes_module_for_tenant(
+        self, super_admin_client, target_tenant, manutencao_module, db_session
+    ):
+        from app.modules.hub.seed import seed_manutencao_for_tenant
+
+        await seed_manutencao_for_tenant(db_session, target_tenant.id)
+
+        r = await super_admin_client.delete(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules/{manutencao_module.id}"
+        )
+        assert r.status_code == 204
+
+        from app.modules.hub.repository import ModuleRepository
+
+        repo = ModuleRepository(db_session)
+        assert await repo.is_enabled(target_tenant.id, "manutencao") is False
+
+    async def test_revoke_not_enabled_returns_404(
+        self, super_admin_client, target_tenant, manutencao_module
+    ):
+        r = await super_admin_client.delete(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules/{manutencao_module.id}"
+        )
+        assert r.status_code == 404
+
+    async def test_revoke_unknown_tenant_returns_404(
+        self, super_admin_client, manutencao_module
+    ):
+        import uuid
+
+        r = await super_admin_client.delete(
+            f"/api/v1/admin/platform/tenants/{uuid.uuid4()}/modules/{manutencao_module.id}"
+        )
+        assert r.status_code == 404
+
+    async def test_non_system_admin_forbidden(
+        self, regular_platform_client, target_tenant, manutencao_module
+    ):
+        r = await regular_platform_client.delete(
+            f"/api/v1/admin/platform/tenants/{target_tenant.id}/modules/{manutencao_module.id}"
+        )
+        assert r.status_code == 403
