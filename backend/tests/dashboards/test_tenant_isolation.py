@@ -304,7 +304,6 @@ async def test_reports_tickets_tenant_isolation(
     db_session: AsyncSession, seeded_a: Tenant, seeded_b: Tenant
 ):
     """Admin A's reports show only Tenant A data."""
-    from datetime import datetime, timedelta
 
     admin_a = await _make_admin(db_session, seeded_a)
     admin_b = await _make_admin(db_session, seeded_b)

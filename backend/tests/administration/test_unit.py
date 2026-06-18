@@ -8,9 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.administration.repository import TenantRepository
 from app.modules.administration.schemas import TenantCreate
 from app.modules.administration.service import AdminService
-from app.modules.catalog.seed import seed_catalog_defaults
 from app.modules.tenants.models import Tenant
-from app.modules.users.seed import seed_default_roles_and_permissions
 
 
 class TestProvisionTenant:
@@ -56,6 +54,7 @@ class TestProvisionTenant:
 
     async def test_provision_seeds_default_roles(self, db_session: AsyncSession):
         from sqlalchemy import select
+
         from app.modules.users.models import Role
 
         repo = TenantRepository(db_session)
@@ -80,6 +79,7 @@ class TestProvisionTenant:
 
     async def test_provision_creates_admin_user(self, db_session: AsyncSession):
         from sqlalchemy import select
+
         from app.modules.users.models import User
 
         repo = TenantRepository(db_session)

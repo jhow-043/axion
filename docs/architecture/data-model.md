@@ -16,6 +16,35 @@
 
 ---
 
+## HUB — Catálogo de Módulos (P20)
+
+```
+modules                         # Catálogo global — sem tenant_id (pertence à plataforma)
+├── id              UUID, PK
+├── code            String, UNIQUE, NOT NULL    # "manutencao", "estoque"... — âncora estável
+├── name            String, NOT NULL            # "Gestão de Manutenção"
+├── description     Text, nullable
+├── icon            String, nullable            # nome do ícone Lucide (ex.: "Wrench")
+├── sort_order      Integer, DEFAULT 0
+├── is_active       Boolean, DEFAULT true
+├── created_at      DateTime
+└── updated_at      DateTime
+
+tenant_modules                  # Vínculo tenant ↔ módulo liberado
+├── id              UUID, PK
+├── tenant_id       UUID, FK → tenants, NOT NULL
+│                   INDEX(tenant_id)
+├── module_id       UUID, FK → modules, NOT NULL
+│                   UNIQUE(tenant_id, module_id)
+└── enabled_at      DateTime, NOT NULL          # quando o módulo foi liberado para este tenant
+```
+
+> Nota: `tenant_modules` não usa `TenantMixin` porque precisa ser consultada de forma
+> cross-tenant pelo super-admin. O isolamento é garantido pela coluna `tenant_id` explícita
+> e pela dependency `require_module` que sempre usa o tenant do usuário autenticado.
+
+---
+
 ## Módulo: Tenants (P01)
 
 ```

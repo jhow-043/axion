@@ -1,7 +1,6 @@
 """Tests for app.modules.notifications.websocket — pub/sub and WS helpers."""
 from __future__ import annotations
 
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -14,7 +13,6 @@ from app.modules.notifications.websocket import (
     handle_ws_connection,
     publish_to_user,
 )
-
 
 # ── _remove_local ──────────────────────────────────────────────────────────────
 

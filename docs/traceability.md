@@ -131,6 +131,21 @@
 | RF-193 | Soft delete de tenant | P19 | ADR-0002 | feature/019 | in-progress |
 | RF-194 | Tenant `is_system` protegido contra exclusão | P19 | ADR-0001 | feature/019 | in-progress |
 
+## HUB Modular
+
+| RF/RNF | Descrição resumida | Spec | ADR | Branch/PR | Status |
+|--------|-------------------|------|-----|-----------|--------|
+| RF-200 | Catálogo global de módulos (`modules`) | P20 | ADR-0006 | feature/020 | pending |
+| RF-201 | Super-admin libera/revoga módulos por empresa | P20, P21 | ADR-0006 | feature/020, feature/021 | pending |
+| RF-202 | `/auth/me` retorna `enabled_modules` | P20 | ADR-0006 | feature/020 | pending |
+| RF-203 | Módulo não liberado → 404 no backend | P20, P24 | ADR-0002, ADR-0006 | feature/020, feature/024 | pending |
+| RF-204 | Home do HUB exibe cards dos módulos liberados | P22 | ADR-0006 | feature/022 | pending |
+| RF-205 | Menu lateral data-driven por módulos liberados | P23 | ADR-0006 | feature/023 | pending |
+| RF-206 | Rota de módulo não liberado → redirect para `/` | P23 | ADR-0006 | feature/023 | pending |
+| RF-207 | UI de gestão de módulos por empresa no super-admin | P21 | ADR-0006 | feature/021 | pending |
+| RF-208 | Novo tenant recebe `manutencao` liberado automaticamente | P20 | ADR-0006 | feature/020 | pending |
+| RF-209 | Routers de manutenção aplicam `require_module` | P24 | ADR-0006 | feature/024 | pending |
+
 ---
 
 ## Como atualizar

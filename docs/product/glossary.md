@@ -144,6 +144,39 @@ Abre chamados, valida soluções. Vê apenas seus próprios chamados.
 
 ---
 
+## HUB e Módulos
+
+**HUB**
+A plataforma central que autentica usuários, gerencia empresas, controla permissões e
+exibe os módulos/produtos disponíveis para cada empresa. Não é um produto em si — é a
+base que sustenta todos os produtos.
+
+**Módulo**
+Conjunto de funcionalidades disponibilizado como uma unidade liberável por empresa.
+Cada módulo tem um `code` estável (ex.: `"manutencao"`) usado no código e nas rotas.
+O catálogo de módulos é global (da plataforma); a liberação é por empresa.
+
+**Módulo Liberado**
+Módulo ao qual uma empresa tem acesso ativo. Controlado pelo super-administrador via
+tabela `tenant_modules`. Presença da linha = liberado; ausência = bloqueado.
+
+**Catálogo de Módulos**
+Lista de todos os módulos registrados na plataforma (tabela `modules`). Cada entrada
+define `code`, `name`, `icon`, `sort_order` e `is_active`. Gerenciado pela plataforma,
+não por tenant individual.
+
+**Home do HUB**
+Tela inicial exibida ao usuário após o login. Mostra apenas os cards dos módulos liberados
+para a empresa do usuário. Ponto de entrada para qualquer módulo. Substitui o redirect
+direto a um dashboard de produto específico.
+
+**Super-administrador (System Admin)**
+Usuário com permissão `system_admin`. Acessa a área `/plataforma`, gerencia empresas,
+provisiona novos tenants e controla quais módulos estão liberados para cada empresa.
+Opera fora do escopo de tenant (cross-tenant por design).
+
+---
+
 ## Termos técnicos preservados no código
 
 | Termo no código | Significado |
@@ -155,3 +188,7 @@ Abre chamados, valida soluções. Vê apenas seus próprios chamados.
 | `status.code` | Código invariante do status (âncora da state machine) |
 | `assignee_id` | ID do técnico responsável pelo chamado |
 | `requester_id` | ID do solicitante do chamado |
+| `module.code` | Identificador estável de um módulo (ex.: `"manutencao"`) — usado no código, rotas e frontend |
+| `enabled_modules` | Lista de `module.code` retornada pelo `/auth/me` — módulos liberados para o tenant do usuário |
+| `require_module` | Dependency FastAPI que verifica se o tenant tem o módulo liberado; retorna 404 se não (ADR-0006) |
+| `ModuleRegistry` | Registro declarativo no frontend mapeando `code` → label, ícone, rotas e itens de menu |
