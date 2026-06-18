@@ -1,7 +1,7 @@
 ---
 id: P04
 slug: usuarios-permissoes
-status: in-review
+status: done
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P03]

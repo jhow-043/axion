@@ -1,7 +1,7 @@
 ---
 id: P22
 slug: hub-home-modular
-status: draft
+status: done
 version: 0.1.0
 owner: jhowworks
 depends_on: [P02, P20]

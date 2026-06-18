@@ -1,7 +1,7 @@
 ---
 id: P21
 slug: hub-admin-modulos
-status: in-review
+status: done
 version: 0.1.0
 owner: jhowworks
 depends_on: [P19, P20]
