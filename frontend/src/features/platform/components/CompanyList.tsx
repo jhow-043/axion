@@ -8,10 +8,12 @@ import {
   useUpdateCompany,
 } from "../api";
 import { CompanyProvisionModal } from "./CompanyProvisionModal";
+import { CompanyModulesModal } from "./CompanyModulesModal";
 
 export function CompanyList() {
   const [page, setPage] = useState(1);
   const [showProvision, setShowProvision] = useState(false);
+  const [modulesFor, setModulesFor] = useState<{ id: string; name: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; name: string } | null>(null);
   const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
 
@@ -140,6 +142,12 @@ export function CompanyList() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3 text-xs">
+                        <button
+                          onClick={() => setModulesFor({ id: tenant.id, name: tenant.name })}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Módulos
+                        </button>
                         {tenant.is_active ? (
                           <button
                             disabled={suspend.isPending}
@@ -200,6 +208,14 @@ export function CompanyList() {
       )}
 
       {showProvision && <CompanyProvisionModal onClose={() => setShowProvision(false)} />}
+
+      {modulesFor && (
+        <CompanyModulesModal
+          tenantId={modulesFor.id}
+          tenantName={modulesFor.name}
+          onClose={() => setModulesFor(null)}
+        />
+      )}
 
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

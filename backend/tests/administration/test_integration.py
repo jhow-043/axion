@@ -137,11 +137,6 @@ class TestDeactivatedTenantAuth:
         self, super_admin_client: AsyncClient, db_session: AsyncSession
     ):
         """Deactivating a tenant → its users' login is blocked via is_active check on tenant."""
-        from app.modules.users.models import Role, UserRole
-        from app.core.security import hash_password
-        from sqlalchemy import select
-        from app.modules.users.seed import seed_default_roles_and_permissions
-        from app.modules.catalog.seed import seed_catalog_defaults
 
         # Create and provision a new tenant
         slug = f"blocktest-{uuid.uuid4().hex[:6]}"

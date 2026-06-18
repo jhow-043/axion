@@ -184,3 +184,18 @@
 | RF-192 | Provisionamento de novo tenant pelo super-admin via modal | P19 |
 | RF-193 | Soft delete de tenant com ocultação automática em todas as queries | P19 |
 | RF-194 | Tenant do sistema (`is_system`) protegido contra exclusão | P19 |
+
+## HUB Modular
+
+| ID | Requisito | Spec |
+|----|-----------|------|
+| RF-200 | A plataforma mantém um catálogo global de módulos disponíveis (`modules`) | P20 |
+| RF-201 | O super-admin libera/revoga módulos por empresa via vínculo em `tenant_modules` | P20, P21 |
+| RF-202 | `GET /auth/me` retorna `enabled_modules` com os códigos dos módulos liberados para o tenant | P20 |
+| RF-203 | Acesso a endpoint de módulo não liberado retorna 404 (coerente com ADR-0002) | P20, P24 |
+| RF-204 | A tela inicial (Home do HUB) exibe apenas os módulos liberados para a empresa do usuário | P22 |
+| RF-205 | O menu lateral exibe apenas itens dos módulos liberados para a empresa do usuário | P23 |
+| RF-206 | Acesso por URL a rota de módulo não liberado redireciona para a Home do HUB | P23 |
+| RF-207 | O super-admin pode listar o catálogo, ver e alterar módulos liberados por empresa | P21 |
+| RF-208 | Ao provisionar novo tenant, o módulo `manutencao` é liberado automaticamente | P20 |
+| RF-209 | Todos os routers do domínio de manutenção aplicam `require_module("manutencao")` | P24 |

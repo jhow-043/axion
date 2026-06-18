@@ -4,7 +4,7 @@ Tests pure business logic without hitting the database."""
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
@@ -268,11 +268,11 @@ class TestAvgHours:
         assert _avg_hours([(t0, t0 + timedelta(hours=1)), (t0, t0 + timedelta(hours=3))]) == 2.0
 
     def test_strips_timezone(self):
-        from datetime import timezone, timedelta
+        from datetime import timedelta
 
         from app.modules.dashboards.service import _avg_hours
 
-        t0 = datetime(2024, 1, 1, tzinfo=timezone.utc)
+        t0 = datetime(2024, 1, 1, tzinfo=UTC)
         t1 = t0 + timedelta(hours=4)
         assert _avg_hours([(t0, t1)]) == 4.0
 
@@ -304,7 +304,6 @@ class TestManagementDashboardAccess:
     @pytest.mark.asyncio
     async def test_admin_succeeds_with_empty_data(self):
         from unittest.mock import AsyncMock
-        from uuid import uuid4
 
         from app.modules.dashboards.service import DashboardService
 

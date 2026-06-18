@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, get_db, require_permission
+from app.core.deps import get_current_user, get_db, require_module, require_permission
 from app.core.permissions import EQUIPMENT_MANAGE, EQUIPMENT_READ
 from app.modules.equipments.repository import EquipmentRepository
 from app.modules.equipments.schemas import (
@@ -18,7 +18,7 @@ from app.modules.equipments.schemas import (
 from app.modules.equipments.service import EquipmentService
 from app.modules.locations.repository import SectorRepository
 
-router = APIRouter(prefix="/equipments", tags=["equipments"])
+router = APIRouter(prefix="/equipments", tags=["equipments"], dependencies=[Depends(require_module("manutencao"))])
 
 
 def _get_service(

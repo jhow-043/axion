@@ -14,6 +14,7 @@ from app.modules.catalog.seed import seed_catalog_defaults
 from app.modules.sla.models import SlaPolicy
 from app.modules.tenants.models import Tenant
 from app.modules.users.models import Role, User, UserRole
+from app.modules.hub.seed import seed_manutencao_for_tenant
 from app.modules.users.seed import seed_default_roles_and_permissions
 
 
@@ -29,6 +30,7 @@ async def tenant(db_session: AsyncSession) -> Tenant:
 async def seeded_tenant(db_session: AsyncSession, tenant: Tenant) -> Tenant:
     await seed_default_roles_and_permissions(db_session, tenant.id)
     await seed_catalog_defaults(db_session, tenant.id)
+    await seed_manutencao_for_tenant(db_session, tenant.id)
     await db_session.flush()
     return tenant
 

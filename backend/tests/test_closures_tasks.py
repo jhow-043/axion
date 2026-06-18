@@ -12,7 +12,6 @@ from app.modules.closures.tasks import (
     auto_close_sweep,
 )
 
-
 # ── helpers ────────────────────────────────────────────────────────────────────
 
 

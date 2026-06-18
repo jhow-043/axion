@@ -27,3 +27,30 @@ class TenantModuleResponse(BaseModel):
     tenant_id: UUID
     module_id: UUID
     enabled_at: datetime
+
+
+# ── P21: Platform admin module management ─────────────────────────────────────
+
+class ModuleCatalogItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    code: str
+    name: str
+    icon: str | None
+    is_active: bool
+
+
+class TenantEnabledModule(BaseModel):
+    module_id: UUID
+    module_code: str
+    enabled_at: datetime
+
+
+class TenantModulesResponse(BaseModel):
+    catalog: list[ModuleCatalogItem]
+    enabled: list[TenantEnabledModule]
+
+
+class EnableModuleRequest(BaseModel):
+    module_id: UUID

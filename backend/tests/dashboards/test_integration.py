@@ -398,11 +398,11 @@ async def test_report_tickets_json(
     db_session: AsyncSession,
     seeded_tenant: Tenant,
     admin_user: User,
-    default_priority: "Priority",
-    status_new: "Status",
-    team: "Team",
+    default_priority: Priority,
+    status_new: Status,
+    team: Team,
 ):
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     now = datetime.utcnow()
     t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id)
@@ -428,11 +428,11 @@ async def test_report_tickets_csv(
     db_session: AsyncSession,
     seeded_tenant: Tenant,
     admin_user: User,
-    default_priority: "Priority",
-    status_new: "Status",
-    team: "Team",
+    default_priority: Priority,
+    status_new: Status,
+    team: Team,
 ):
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     now = datetime.utcnow()
     t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id)
@@ -469,7 +469,7 @@ async def test_report_tickets_period_over_limit_returns_422(admin_client: AsyncC
 
 @pytest.mark.asyncio
 async def test_report_technician_returns_403(tech_client: AsyncClient):
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
@@ -486,10 +486,10 @@ async def test_report_equipments_json(
     db_session: AsyncSession,
     seeded_tenant: Tenant,
     admin_user: User,
-    default_priority: "Priority",
-    status_new: "Status",
+    default_priority: Priority,
+    status_new: Status,
 ):
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
@@ -507,10 +507,10 @@ async def test_report_sla_json(
     db_session: AsyncSession,
     seeded_tenant: Tenant,
     admin_user: User,
-    default_priority: "Priority",
-    status_new: "Status",
+    default_priority: Priority,
+    status_new: Status,
 ):
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
@@ -528,10 +528,10 @@ async def test_report_teams_json(
     db_session: AsyncSession,
     seeded_tenant: Tenant,
     admin_user: User,
-    default_priority: "Priority",
-    status_new: "Status",
+    default_priority: Priority,
+    status_new: Status,
 ):
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"

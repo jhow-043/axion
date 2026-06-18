@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, get_db, require_permission
+from app.core.deps import get_current_user, get_db, require_module, require_permission
 from app.core.permissions import ADMIN_CONFIG, TICKET_READ, TICKET_TRANSITION
 from app.modules.catalog.repository import (
     CategoryRepository,
@@ -37,7 +37,7 @@ from app.modules.catalog.service import (
     StatusService,
 )
 
-catalog_router = APIRouter(prefix="/catalog", tags=["catalog"])
+catalog_router = APIRouter(prefix="/catalog", tags=["catalog"], dependencies=[Depends(require_module("manutencao"))])
 
 
 def _priority_service(

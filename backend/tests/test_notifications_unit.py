@@ -22,7 +22,6 @@ from app.modules.notifications.service import (
     _build_body,
 )
 
-
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 

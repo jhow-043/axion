@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import { RequireAuth } from "@/shared/components/RequireAuth";
+import { RequireModule } from "@/shared/components/RequireModule";
 import { AppShell } from "@/shared/components/layout/AppShell";
 import { LoginPage } from "@/features/auth/components/LoginPage";
 import { NotFoundPage } from "@/shared/components/pages/NotFoundPage";
@@ -26,10 +27,12 @@ export const router = createBrowserRouter([
           {
             index: true,
             lazy: () =>
-              import("@/shared/components/pages/DashboardRedirect").then((m) => ({
-                Component: m.DashboardRedirect,
+              import("@/features/hub/components/HubHome").then((m) => ({
+                Component: m.HubHome,
               })),
           },
+
+          // ── Rotas de plataforma (sem guard de módulo) ──────────────────
           {
             path: "users",
             lazy: () =>
@@ -80,55 +83,6 @@ export const router = createBrowserRouter([
               })),
           },
           {
-            path: "equipments",
-            lazy: () =>
-              import("@/features/equipments/components/EquipmentList").then((m) => ({
-                Component: m.EquipmentList,
-              })),
-          },
-          {
-            path: "equipments/new",
-            lazy: () =>
-              import("@/features/equipments/components/EquipmentForm").then((m) => ({
-                Component: m.EquipmentForm,
-              })),
-          },
-          {
-            path: "equipments/:id",
-            lazy: () =>
-              import("@/features/equipments/components/EquipmentDetail").then((m) => ({
-                Component: m.EquipmentDetail,
-              })),
-          },
-          {
-            path: "equipments/:id/edit",
-            lazy: () =>
-              import("@/features/equipments/components/EquipmentForm").then((m) => ({
-                Component: m.EquipmentForm,
-              })),
-          },
-          {
-            path: "tickets",
-            lazy: () =>
-              import("@/features/tickets/components/TicketList").then((m) => ({
-                Component: m.TicketList,
-              })),
-          },
-          {
-            path: "tickets/new",
-            lazy: () =>
-              import("@/features/tickets/components/TicketForm").then((m) => ({
-                Component: m.TicketForm,
-              })),
-          },
-          {
-            path: "tickets/:id",
-            lazy: () =>
-              import("@/features/tickets/components/TicketDetail").then((m) => ({
-                Component: m.TicketDetail,
-              })),
-          },
-          {
             path: "notifications",
             lazy: () =>
               import("@/features/notifications/components/NotificationList").then((m) => ({
@@ -141,78 +95,6 @@ export const router = createBrowserRouter([
               import(
                 "@/features/notifications/components/NotificationPreferences"
               ).then((m) => ({ Component: m.NotificationPreferences })),
-          },
-          {
-            path: "setores",
-            lazy: () =>
-              import("@/features/locations/components/SetoresLocaisPage").then((m) => ({
-                Component: m.SetoresLocaisPage,
-              })),
-          },
-          {
-            path: "locais",
-            lazy: () =>
-              import("@/features/locations/components/LocationList").then((m) => ({
-                Component: m.LocationList,
-              })),
-          },
-          {
-            path: "sla",
-            lazy: () =>
-              import("@/features/sla/components/SlaPolicyList").then((m) => ({
-                Component: m.SlaPolicyList,
-              })),
-          },
-          {
-            path: "catalogos",
-            element: <Navigate to="/administracao/catalogos" replace />,
-          },
-          {
-            path: "dashboard",
-            children: [
-              {
-                index: true,
-                lazy: () =>
-                  import("@/shared/components/pages/DashboardRedirect").then((m) => ({
-                    Component: m.DashboardRedirect,
-                  })),
-              },
-              {
-                path: "technician",
-                lazy: () =>
-                  import(
-                    "@/features/dashboards/components/TechnicianDashboard"
-                  ).then((m) => ({ Component: m.TechnicianDashboard })),
-              },
-              {
-                path: "supervisor",
-                lazy: () =>
-                  import(
-                    "@/features/dashboards/components/SupervisorDashboard"
-                  ).then((m) => ({ Component: m.SupervisorDashboard })),
-              },
-              {
-                path: "board",
-                lazy: () =>
-                  import("@/features/dashboards/components/KanbanBoard").then(
-                    (m) => ({ Component: m.KanbanBoard }),
-                  ),
-              },
-              {
-                path: "management",
-                lazy: () =>
-                  import(
-                    "@/features/dashboards/components/ManagementDashboard"
-                  ).then((m) => ({ Component: m.ManagementDashboard })),
-              },
-            ],
-          },
-          {
-            path: "relatorios",
-            lazy: () =>
-              import("@/features/dashboards/components/Reports").then(
-                (m) => ({ Component: m.Reports }),
-              ),
           },
           {
             path: "administracao",
@@ -299,6 +181,134 @@ export const router = createBrowserRouter([
                   import("@/features/platform/components/CompanyList").then((m) => ({
                     Component: m.CompanyList,
                   })),
+              },
+            ],
+          },
+
+          // ── Rotas do módulo manutencao (guardadas por RequireModule) ───
+          {
+            element: <RequireModule code="manutencao" />,
+            children: [
+              {
+                path: "equipments",
+                lazy: () =>
+                  import("@/features/equipments/components/EquipmentList").then((m) => ({
+                    Component: m.EquipmentList,
+                  })),
+              },
+              {
+                path: "equipments/new",
+                lazy: () =>
+                  import("@/features/equipments/components/EquipmentForm").then((m) => ({
+                    Component: m.EquipmentForm,
+                  })),
+              },
+              {
+                path: "equipments/:id",
+                lazy: () =>
+                  import("@/features/equipments/components/EquipmentDetail").then((m) => ({
+                    Component: m.EquipmentDetail,
+                  })),
+              },
+              {
+                path: "equipments/:id/edit",
+                lazy: () =>
+                  import("@/features/equipments/components/EquipmentForm").then((m) => ({
+                    Component: m.EquipmentForm,
+                  })),
+              },
+              {
+                path: "tickets",
+                lazy: () =>
+                  import("@/features/tickets/components/TicketList").then((m) => ({
+                    Component: m.TicketList,
+                  })),
+              },
+              {
+                path: "tickets/new",
+                lazy: () =>
+                  import("@/features/tickets/components/TicketForm").then((m) => ({
+                    Component: m.TicketForm,
+                  })),
+              },
+              {
+                path: "tickets/:id",
+                lazy: () =>
+                  import("@/features/tickets/components/TicketDetail").then((m) => ({
+                    Component: m.TicketDetail,
+                  })),
+              },
+              {
+                path: "setores",
+                lazy: () =>
+                  import("@/features/locations/components/SetoresLocaisPage").then((m) => ({
+                    Component: m.SetoresLocaisPage,
+                  })),
+              },
+              {
+                path: "locais",
+                lazy: () =>
+                  import("@/features/locations/components/LocationList").then((m) => ({
+                    Component: m.LocationList,
+                  })),
+              },
+              {
+                path: "sla",
+                lazy: () =>
+                  import("@/features/sla/components/SlaPolicyList").then((m) => ({
+                    Component: m.SlaPolicyList,
+                  })),
+              },
+              {
+                path: "catalogos",
+                element: <Navigate to="/administracao/catalogos" replace />,
+              },
+              {
+                path: "dashboard",
+                children: [
+                  {
+                    index: true,
+                    lazy: () =>
+                      import("@/shared/components/pages/DashboardRedirect").then((m) => ({
+                        Component: m.DashboardRedirect,
+                      })),
+                  },
+                  {
+                    path: "technician",
+                    lazy: () =>
+                      import(
+                        "@/features/dashboards/components/TechnicianDashboard"
+                      ).then((m) => ({ Component: m.TechnicianDashboard })),
+                  },
+                  {
+                    path: "supervisor",
+                    lazy: () =>
+                      import(
+                        "@/features/dashboards/components/SupervisorDashboard"
+                      ).then((m) => ({ Component: m.SupervisorDashboard })),
+                  },
+                  {
+                    path: "board",
+                    lazy: () =>
+                      import("@/features/dashboards/components/KanbanBoard").then(
+                        (m) => ({ Component: m.KanbanBoard }),
+                      ),
+                  },
+                  {
+                    path: "management",
+                    lazy: () =>
+                      import(
+                        "@/features/dashboards/components/ManagementDashboard"
+                      ).then((m) => ({ Component: m.ManagementDashboard })),
+                  },
+                ],
+              },
+              {
+                path: "relatorios",
+                lazy: () =>
+                  import("@/features/dashboards/components/Reports").then(
+                    (m) => ({ Component: m.Reports }),
+                  ),
               },
             ],
           },

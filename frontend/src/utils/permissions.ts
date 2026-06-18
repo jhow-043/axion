@@ -20,6 +20,11 @@ export function hasPermission(session: UserSession | null, code: string): boolea
   return session.permissions.includes(code);
 }
 
+export function hasModule(session: UserSession | null, code: string): boolean {
+  if (!session) return false;
+  return session.enabled_modules.includes(code);
+}
+
 // Permission code constants — mirror backend app/core/permissions.py
 export const Permissions = {
   USER_READ: "user:read",

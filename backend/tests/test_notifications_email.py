@@ -8,7 +8,6 @@ import pytest
 
 from app.modules.notifications.tasks import send_notification_email
 
-
 # ── happy path ─────────────────────────────────────────────────────────────────
 
 

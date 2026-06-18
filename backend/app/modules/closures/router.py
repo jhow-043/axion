@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, get_db, require_permission
+from app.core.deps import get_current_user, get_db, require_module, require_permission
 from app.core.permissions import ADMIN_CONFIG, TICKET_READ, TICKET_VALIDATE
 from app.modules.catalog.repository import StatusRepository
 from app.modules.closures.repository import TenantSettingsRepository, ValidationRepository
@@ -26,8 +26,8 @@ from app.modules.timeline.repository import TicketEventRepository
 from app.modules.timeline.service import TimelineService
 from app.modules.users.repository import UserRepository
 
-tickets_closures_router = APIRouter(prefix="/tickets", tags=["closures"])
-admin_router = APIRouter(prefix="/admin", tags=["closures"])
+tickets_closures_router = APIRouter(prefix="/tickets", tags=["closures"], dependencies=[Depends(require_module("manutencao"))])
+admin_router = APIRouter(prefix="/admin", tags=["closures"], dependencies=[Depends(require_module("manutencao"))])
 
 
 def _get_service(

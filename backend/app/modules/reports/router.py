@@ -13,12 +13,13 @@ from app.core.config import settings
 from app.core.deps import (
     get_current_user,
     get_db,
+    require_module,
     require_permission,
 )
 from app.core.permissions import DASHBOARD_MANAGEMENT
 from app.modules.dashboards.repository import DashboardRepository
 
-router = APIRouter(prefix="/reports", tags=["reports"])
+router = APIRouter(prefix="/reports", tags=["reports"], dependencies=[Depends(require_module("manutencao"))])
 
 
 def _get_repo(

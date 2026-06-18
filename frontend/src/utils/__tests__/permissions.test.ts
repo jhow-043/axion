@@ -1,5 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { hasRole, hasMinRole } from "@/utils/permissions";
+import { hasRole, hasMinRole, hasModule } from "@/utils/permissions";
+import type { UserSession } from "@/types/api";
+
+const makeSession = (modules: string[]): UserSession => ({
+  id: "1",
+  name: "Test",
+  email: "test@test.com",
+  tenant_id: "t1",
+  roles: ["admin"],
+  permissions: [],
+  is_active: true,
+  enabled_modules: modules,
+});
 
 describe("hasRole", () => {
   it("retorna true quando papel está na lista", () => {
@@ -22,5 +34,19 @@ describe("hasMinRole", () => {
 
   it("technician tem exatamente o papel de technician", () => {
     expect(hasMinRole(["technician"], "technician")).toBe(true);
+  });
+});
+
+describe("hasModule", () => {
+  it("retorna true quando módulo está na sessão", () => {
+    expect(hasModule(makeSession(["manutencao"]), "manutencao")).toBe(true);
+  });
+
+  it("retorna false quando módulo não está na sessão", () => {
+    expect(hasModule(makeSession([]), "manutencao")).toBe(false);
+  });
+
+  it("retorna false para sessão nula sem lançar erro", () => {
+    expect(hasModule(null, "manutencao")).toBe(false);
   });
 });
