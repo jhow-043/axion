@@ -1,7 +1,7 @@
 ---
 id: P15
 slug: dashboards-operacionais
-status: in-review
+status: done
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04, P09, P12]

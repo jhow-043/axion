@@ -1,7 +1,7 @@
 ---
 id: P24
 slug: hub-consolidacao-manutencao
-status: draft
+status: done
 version: 0.1.0
 owner: jhowworks
 depends_on: [P20, P23]

@@ -1,7 +1,7 @@
 ---
 id: P23
 slug: hub-menu-rotas
-status: draft
+status: done
 version: 0.1.0
 owner: jhowworks
 depends_on: [P22]

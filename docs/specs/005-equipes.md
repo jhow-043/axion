@@ -1,7 +1,7 @@
 ---
 id: P05
 slug: equipes
-status: in-review
+status: done
 version: 1.0.0
 owner: jhowworks
 depends_on: [P01, P04]

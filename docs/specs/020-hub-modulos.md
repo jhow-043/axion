@@ -1,7 +1,7 @@
 ---
 id: P20
 slug: hub-modulos
-status: in-review
+status: done
 version: 0.1.0
 owner: jhowworks
 depends_on: [P01, P03, P04, P19]
