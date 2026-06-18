@@ -8,6 +8,7 @@ from app.core.deps import get_current_user, get_db
 from app.modules.auth.repository import RefreshTokenRepository, UserAuthRepository
 from app.modules.auth.schemas import LoginRequest, TokenResponse, UserMeResponse
 from app.modules.auth.service import AuthService, InvalidCredentialsError, TokenRevokedError
+from app.modules.hub.repository import ModuleRepository
 from app.modules.users.models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -20,6 +21,7 @@ def _get_service(db: AsyncSession = Depends(get_db)) -> AuthService:
     return AuthService(
         user_repo=UserAuthRepository(db),
         token_repo=RefreshTokenRepository(db),
+        module_repo=ModuleRepository(db),
     )
 
 

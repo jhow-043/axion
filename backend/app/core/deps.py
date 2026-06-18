@@ -125,6 +125,24 @@ def require_system_admin() -> Callable:
     return _check
 
 
+def require_module(module_code: str) -> Callable:
+    """Factory returning a dependency that enforces module entitlement.
+    Returns 404 (not 403) when the module is not enabled for the tenant — ADR-0002 + ADR-0006."""
+
+    async def _check(
+        current_user=Depends(get_current_user),
+        db: AsyncSession = Depends(get_db),
+    ):
+        from app.modules.hub.repository import ModuleRepository
+
+        repo = ModuleRepository(db)
+        if not await repo.is_enabled(current_user.tenant_id, module_code):
+            raise HTTPException(status_code=404, detail="Recurso não encontrado.")
+        return current_user
+
+    return _check
+
+
 def require_any_permission(*permission_codes: str) -> Callable:
     """Factory returning a dependency that passes if the user holds ANY of the given permissions."""
 

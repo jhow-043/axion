@@ -23,9 +23,13 @@ from app.core.deps import get_db  # noqa: E402
 from app.db.base import Base  # noqa: E402
 from app.modules.attachments.models import Attachment  # noqa: E402, F401
 from app.modules.audit.models import AuditLog  # noqa: E402, F401
+from app.modules.auth.models import RefreshToken  # noqa: E402, F401
+from app.modules.catalog.models import Category, PendingReason, Priority, Status  # noqa: E402, F401
 from app.modules.closures.models import TenantSettings, Validation  # noqa: E402, F401
 from app.modules.equipments.models import Equipment  # noqa: E402, F401
+from app.modules.hub.models import Module, TenantModule  # noqa: E402, F401
 from app.modules.locations.models import Location, Sector  # noqa: E402, F401
+from app.modules.users.models import Permission, Role, RolePermission, User, UserRole  # noqa: E402, F401
 from app.modules.notifications.models import (  # noqa: E402, F401
     Notification,
     NotificationPreference,
