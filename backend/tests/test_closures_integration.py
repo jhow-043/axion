@@ -29,6 +29,7 @@ from app.modules.timeline.repository import TicketEventRepository
 from app.modules.timeline.service import TimelineService
 from app.modules.users.models import User
 from app.modules.users.repository import UserRepository
+from app.modules.hub.seed import seed_manutencao_for_tenant
 from app.shared.tenant_context import tenant_context
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ async def cl_tenant(db_session: AsyncSession) -> Tenant:
     t = Tenant(id=uuid4(), name="Closures Corp", slug=f"cl-{uuid4().hex[:8]}")
     db_session.add(t)
     await db_session.flush()
+    await seed_manutencao_for_tenant(db_session, t.id)
     return t
 
 

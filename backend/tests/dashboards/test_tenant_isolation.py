@@ -18,6 +18,7 @@ from app.modules.catalog.seed import seed_catalog_defaults
 from app.modules.tenants.models import Tenant
 from app.modules.tickets.models import Ticket
 from app.modules.users.models import Role, User, UserRole
+from app.modules.hub.seed import seed_manutencao_for_tenant
 from app.modules.users.seed import seed_default_roles_and_permissions
 
 # ── Fixtures for two tenants ──────────────────────────────────────────────────
@@ -43,6 +44,7 @@ async def tenant_b(db_session: AsyncSession) -> Tenant:
 async def seeded_a(db_session: AsyncSession, tenant_a: Tenant) -> Tenant:
     await seed_default_roles_and_permissions(db_session, tenant_a.id)
     await seed_catalog_defaults(db_session, tenant_a.id)
+    await seed_manutencao_for_tenant(db_session, tenant_a.id)
     await db_session.flush()
     return tenant_a
 
@@ -51,6 +53,7 @@ async def seeded_a(db_session: AsyncSession, tenant_a: Tenant) -> Tenant:
 async def seeded_b(db_session: AsyncSession, tenant_b: Tenant) -> Tenant:
     await seed_default_roles_and_permissions(db_session, tenant_b.id)
     await seed_catalog_defaults(db_session, tenant_b.id)
+    await seed_manutencao_for_tenant(db_session, tenant_b.id)
     await db_session.flush()
     return tenant_b
 

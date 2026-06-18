@@ -11,6 +11,7 @@ from app.core.deps import (
     get_current_role_codes,
     get_current_user,
     get_db,
+    require_module,
     require_permission,
 )
 from app.core.permissions import DASHBOARD_MANAGEMENT, DASHBOARD_OPERATIONAL
@@ -23,7 +24,7 @@ from app.modules.dashboards.schemas import (
 )
 from app.modules.dashboards.service import DashboardService
 
-router = APIRouter(prefix="/dashboards", tags=["dashboards"])
+router = APIRouter(prefix="/dashboards", tags=["dashboards"], dependencies=[Depends(require_module("manutencao"))])
 
 _DEFAULT_PERIOD_DAYS = settings.REPORT_MAX_PERIOD_DAYS
 

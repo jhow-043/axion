@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, get_db, require_permission
+from app.core.deps import get_current_user, get_db, require_module, require_permission
 from app.core.permissions import ADMIN_CONFIG, TICKET_READ
 from app.modules.audit.service import build_audit_service
 from app.modules.notifications.service import build_notification_service
@@ -20,8 +20,8 @@ from app.modules.sla.schemas import (
 from app.modules.sla.service import SlaService
 from app.modules.tickets.repository import TicketRepository
 
-sla_router = APIRouter(prefix="/sla", tags=["sla"])
-tickets_sla_router = APIRouter(prefix="/tickets", tags=["sla"])
+sla_router = APIRouter(prefix="/sla", tags=["sla"], dependencies=[Depends(require_module("manutencao"))])
+tickets_sla_router = APIRouter(prefix="/tickets", tags=["sla"], dependencies=[Depends(require_module("manutencao"))])
 
 
 def _get_service(

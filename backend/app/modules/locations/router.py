@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user, get_db, require_any_permission, require_permission
+from app.core.deps import get_current_user, get_db, require_any_permission, require_module, require_permission
 from app.core.permissions import ADMIN_CONFIG, EQUIPMENT_READ, TICKET_READ
 from app.modules.locations.repository import LocationRepository, SectorRepository
 from app.modules.locations.schemas import (
@@ -20,8 +20,8 @@ from app.modules.locations.schemas import (
 )
 from app.modules.locations.service import LocationService, SectorService
 
-sectors_router = APIRouter(prefix="/sectors", tags=["sectors"])
-locations_router = APIRouter(prefix="/locations", tags=["locations"])
+sectors_router = APIRouter(prefix="/sectors", tags=["sectors"], dependencies=[Depends(require_module("manutencao"))])
+locations_router = APIRouter(prefix="/locations", tags=["locations"], dependencies=[Depends(require_module("manutencao"))])
 
 
 def _get_sector_service(
