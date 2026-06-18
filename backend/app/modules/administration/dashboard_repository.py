@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import Integer, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.tenants.models import Tenant
@@ -44,7 +44,7 @@ class DashboardRepository:
         tenant_q = await self.session.execute(
             select(
                 func.count().label("total"),
-                func.sum(Tenant.is_active.cast(type_=None).cast("int")).label("active"),
+                func.sum(Tenant.is_active.cast(Integer)).label("active"),
             ).where(Tenant.deleted_at.is_(None), Tenant.is_system.is_(False))
         )
         row = tenant_q.one()

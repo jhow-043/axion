@@ -1,7 +1,7 @@
 ---
 id: P19
 slug: plataforma-superadmin
-status: in-progress
+status: in-review
 version: 0.1.0
 owner: jhowworks
 depends_on: [P01, P04, P17, P18]

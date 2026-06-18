@@ -179,3 +179,88 @@ class TestGetTenant:
     async def test_get_nonexistent_returns_404(self, super_admin_client: AsyncClient):
         resp = await super_admin_client.get(f"/api/v1/admin/tenants/{uuid.uuid4()}")
         assert resp.status_code == 404
+
+
+class TestGlobalDashboard:
+    async def test_super_admin_gets_dashboard(
+        self, super_admin_client: AsyncClient, base_tenant: Tenant
+    ):
+        resp = await super_admin_client.get("/api/v1/admin/tenants/dashboard")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert "total_companies" in data
+        assert "active_companies" in data
+        assert "suspended_companies" in data
+        assert "total_users" in data
+        assert "total_tickets" in data
+        assert "companies" in data
+        assert isinstance(data["companies"], list)
+
+    async def test_regular_admin_cannot_get_dashboard(
+        self, regular_admin_client: AsyncClient
+    ):
+        resp = await regular_admin_client.get("/api/v1/admin/tenants/dashboard")
+        assert resp.status_code == 403
+
+    async def test_dashboard_excludes_system_tenant(
+        self, super_admin_client: AsyncClient, db_session: AsyncSession
+    ):
+        system_tenant = Tenant(
+            name="Platform",
+            slug=f"platform-{uuid.uuid4().hex[:6]}",
+            is_system=True,
+        )
+        db_session.add(system_tenant)
+        await db_session.flush()
+
+        resp = await super_admin_client.get("/api/v1/admin/tenants/dashboard")
+        assert resp.status_code == 200
+        data = resp.json()
+        company_ids = [c["id"] for c in data["companies"]]
+        assert str(system_tenant.id) not in company_ids
+
+
+class TestDeleteTenant:
+    async def test_delete_normal_tenant_returns_204(
+        self, super_admin_client: AsyncClient, db_session: AsyncSession
+    ):
+        tenant = Tenant(name="Del Corp", slug=f"del-{uuid.uuid4().hex[:6]}")
+        db_session.add(tenant)
+        await db_session.flush()
+
+        resp = await super_admin_client.delete(f"/api/v1/admin/tenants/{tenant.id}")
+        assert resp.status_code == 204
+
+    async def test_deleted_tenant_not_in_list(
+        self, super_admin_client: AsyncClient, db_session: AsyncSession
+    ):
+        tenant = Tenant(name="Gone Corp", slug=f"gone-{uuid.uuid4().hex[:6]}")
+        db_session.add(tenant)
+        await db_session.flush()
+        tenant_id = str(tenant.id)
+
+        await super_admin_client.delete(f"/api/v1/admin/tenants/{tenant.id}")
+
+        resp = await super_admin_client.get("/api/v1/admin/tenants")
+        ids = [item["id"] for item in resp.json()["items"]]
+        assert tenant_id not in ids
+
+    async def test_delete_system_tenant_returns_409(
+        self, super_admin_client: AsyncClient, db_session: AsyncSession
+    ):
+        system_tenant = Tenant(
+            name="System",
+            slug=f"sys-{uuid.uuid4().hex[:6]}",
+            is_system=True,
+        )
+        db_session.add(system_tenant)
+        await db_session.flush()
+
+        resp = await super_admin_client.delete(f"/api/v1/admin/tenants/{system_tenant.id}")
+        assert resp.status_code == 409
+
+    async def test_delete_nonexistent_tenant_returns_404(
+        self, super_admin_client: AsyncClient
+    ):
+        resp = await super_admin_client.delete(f"/api/v1/admin/tenants/{uuid.uuid4()}")
+        assert resp.status_code == 404
