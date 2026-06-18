@@ -34,4 +34,5 @@ export interface UserSession {
   roles: string[];
   permissions: string[];
   is_active: boolean;
+  enabled_modules: string[];
 }

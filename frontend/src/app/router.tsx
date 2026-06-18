@@ -26,8 +26,8 @@ export const router = createBrowserRouter([
           {
             index: true,
             lazy: () =>
-              import("@/shared/components/pages/DashboardRedirect").then((m) => ({
-                Component: m.DashboardRedirect,
+              import("@/features/hub/components/HubHome").then((m) => ({
+                Component: m.HubHome,
               })),
           },
           {
