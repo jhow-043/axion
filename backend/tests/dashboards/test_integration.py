@@ -365,9 +365,15 @@ async def test_management_dashboard_returns_indicators(
     closed_st = result.scalar_one()
 
     for i in range(3):
-        t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id, title=f"T{i}")
+        t = _ticket(
+        seeded_tenant.id, status_new.id, default_priority.id, admin_user.id,
+        team_id=team.id, title=f"T{i}"
+    )
         db_session.add(t)
-    t_closed = _ticket(seeded_tenant.id, closed_st.id, default_priority.id, admin_user.id, team_id=team.id, title="Fechado")
+    t_closed = _ticket(
+        seeded_tenant.id, closed_st.id, default_priority.id, admin_user.id,
+        team_id=team.id, title="Fechado"
+    )
     t_closed.closed_at = now - timedelta(hours=2)
     db_session.add(t_closed)
     await db_session.flush()
@@ -402,10 +408,9 @@ async def test_report_tickets_json(
     status_new: Status,
     team: Team,
 ):
-    from datetime import datetime
-
-    now = datetime.utcnow()
-    t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id)
+    t = _ticket(
+        seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id
+    )
     db_session.add(t)
     await db_session.flush()
 
@@ -432,10 +437,9 @@ async def test_report_tickets_csv(
     status_new: Status,
     team: Team,
 ):
-    from datetime import datetime
-
-    now = datetime.utcnow()
-    t = _ticket(seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id)
+    t = _ticket(
+        seeded_tenant.id, status_new.id, default_priority.id, admin_user.id, team_id=team.id
+    )
     db_session.add(t)
     await db_session.flush()
 
@@ -469,9 +473,6 @@ async def test_report_tickets_period_over_limit_returns_422(admin_client: AsyncC
 
 @pytest.mark.asyncio
 async def test_report_technician_returns_403(tech_client: AsyncClient):
-    from datetime import datetime
-
-    now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
     date_to = "2026-12-31T23:59:59"
     resp = await tech_client.get(
@@ -489,9 +490,6 @@ async def test_report_equipments_json(
     default_priority: Priority,
     status_new: Status,
 ):
-    from datetime import datetime
-
-    now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
     date_to = "2026-12-31T23:59:59"
     resp = await admin_client.get(
@@ -510,9 +508,6 @@ async def test_report_sla_json(
     default_priority: Priority,
     status_new: Status,
 ):
-    from datetime import datetime
-
-    now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
     date_to = "2026-12-31T23:59:59"
     resp = await admin_client.get(
@@ -531,9 +526,6 @@ async def test_report_teams_json(
     default_priority: Priority,
     status_new: Status,
 ):
-    from datetime import datetime
-
-    now = datetime.utcnow()
     date_from = "2026-01-01T00:00:00"
     date_to = "2026-12-31T23:59:59"
     resp = await admin_client.get(

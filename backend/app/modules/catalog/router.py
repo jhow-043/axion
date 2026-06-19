@@ -37,7 +37,11 @@ from app.modules.catalog.service import (
     StatusService,
 )
 
-catalog_router = APIRouter(prefix="/catalog", tags=["catalog"], dependencies=[Depends(require_module("manutencao"))])
+catalog_router = APIRouter(
+    prefix="/catalog",
+    tags=["catalog"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
 
 
 def _priority_service(

@@ -7,6 +7,10 @@ import { NotFoundPage } from "@/shared/components/pages/NotFoundPage";
 import { ErrorPage } from "@/shared/components/pages/ErrorPage";
 import { UnauthorizedPage } from "@/shared/components/pages/UnauthorizedPage";
 
+function HydrateFallback() {
+  return null;
+}
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -19,6 +23,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <RequireAuth />,
+    HydrateFallback,
     errorElement: <ErrorPage />,
     children: [
       {

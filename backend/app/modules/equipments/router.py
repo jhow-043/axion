@@ -18,7 +18,11 @@ from app.modules.equipments.schemas import (
 from app.modules.equipments.service import EquipmentService
 from app.modules.locations.repository import SectorRepository
 
-router = APIRouter(prefix="/equipments", tags=["equipments"], dependencies=[Depends(require_module("manutencao"))])
+router = APIRouter(
+    prefix="/equipments",
+    tags=["equipments"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
 
 
 def _get_service(
