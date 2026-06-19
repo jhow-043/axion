@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-import sqlalchemy as sa
 from alembic import op
 
 revision: str = "f1a2b3c4d5e6"
@@ -21,7 +20,9 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     # IF NOT EXISTS garante idempotência quando colunas já existem no schema
-    op.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS is_system BOOLEAN NOT NULL DEFAULT false")
+    op.execute(
+        "ALTER TABLE tenants ADD COLUMN IF NOT EXISTS is_system BOOLEAN NOT NULL DEFAULT false"
+    )
     op.execute("ALTER TABLE tenants ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP")
     # Cria índice somente se não existir
     op.execute(

@@ -31,8 +31,12 @@ def upgrade() -> None:
         sa.Column("icon", sa.String(100), nullable=True),
         sa.Column("sort_order", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("is_active", sa.Boolean(), nullable=False, server_default="true"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
+        sa.Column(
+            "updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("code", name="uq_modules_code"),
     )
@@ -42,7 +46,9 @@ def upgrade() -> None:
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("tenant_id", sa.Uuid(), nullable=False),
         sa.Column("module_id", sa.Uuid(), nullable=False),
-        sa.Column("enabled_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "enabled_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.ForeignKeyConstraint(["tenant_id"], ["tenants.id"]),
         sa.ForeignKeyConstraint(["module_id"], ["modules.id"]),
         sa.PrimaryKeyConstraint("id"),
@@ -57,8 +63,11 @@ def upgrade() -> None:
     # Seed the 'manutencao' module into the global catalogue
     bind.execute(
         sa.text(
-            "INSERT INTO modules (id, code, name, description, icon, sort_order, is_active, created_at, updated_at) "
-            "VALUES (:id, :code, :name, :description, :icon, :sort_order, :is_active, :created_at, :updated_at)"
+            "INSERT INTO modules "
+            "(id, code, name, description, icon, sort_order, is_active, created_at, updated_at) "
+            "VALUES "
+            "(:id, :code, :name, :description, :icon, "
+            ":sort_order, :is_active, :created_at, :updated_at)"
         ),
         {
             "id": module_id,

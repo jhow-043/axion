@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,7 +15,7 @@ def _utcnow() -> datetime:
     return datetime.now(UTC)
 
 
-class TicketType(str, Enum):
+class TicketType(StrEnum):
     industrial = "industrial"
     predial = "predial"
 

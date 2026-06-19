@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +24,15 @@ class Settings(BaseSettings):
     APP_NAME: str = "ManutenÃ§Ã£o"
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def coerce_debug(cls, v: object) -> bool:
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            return v.lower() not in ("0", "false", "no", "off", "")
+        return bool(v)
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
 
     # Celery / Redis

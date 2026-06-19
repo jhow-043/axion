@@ -70,7 +70,10 @@ async def test_auto_close_sweep_async_calls_sweep():
     mock_svc = AsyncMock()
 
     with (
-        patch("app.modules.closures.tasks._get_active_tenant_ids", AsyncMock(return_value=[tenant_id])),
+        patch(
+            "app.modules.closures.tasks._get_active_tenant_ids",
+            AsyncMock(return_value=[tenant_id]),
+        ),
         patch("app.db.session.get_session_factory", factory),
         patch("app.modules.closures.service.ClosureService", MagicMock(return_value=mock_svc)),
         patch("app.modules.closures.repository.ValidationRepository", MagicMock()),
@@ -98,7 +101,10 @@ async def test_auto_close_sweep_async_rolls_back_on_error():
     mock_svc.sweep_auto_close.side_effect = RuntimeError("fail")
 
     with (
-        patch("app.modules.closures.tasks._get_active_tenant_ids", AsyncMock(return_value=[tenant_id])),
+        patch(
+            "app.modules.closures.tasks._get_active_tenant_ids",
+            AsyncMock(return_value=[tenant_id]),
+        ),
         patch("app.db.session.get_session_factory", factory),
         patch("app.modules.closures.service.ClosureService", MagicMock(return_value=mock_svc)),
         patch("app.modules.closures.repository.ValidationRepository", MagicMock()),

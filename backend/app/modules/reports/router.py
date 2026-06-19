@@ -19,7 +19,11 @@ from app.core.deps import (
 from app.core.permissions import DASHBOARD_MANAGEMENT
 from app.modules.dashboards.repository import DashboardRepository
 
-router = APIRouter(prefix="/reports", tags=["reports"], dependencies=[Depends(require_module("manutencao"))])
+router = APIRouter(
+    prefix="/reports",
+    tags=["reports"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
 
 
 def _get_repo(
@@ -78,7 +82,10 @@ async def report_tickets(
         for row in rows
     ]
     if fmt == "csv":
-        headers = ["id", "type", "title", "priority", "status", "closed", "created_at", "closed_at", "team"]
+        headers = [
+            "id", "type", "title", "priority", "status",
+            "closed", "created_at", "closed_at", "team",
+        ]
         return _csv_response(headers, data, "relatorio_chamados.csv")
     return data
 
@@ -99,9 +106,13 @@ async def report_sla(
             "ticket_id": str(row.id),
             "title": row.title,
             "team": row.team_name or "",
-            "attendance_due_at": row.attendance_due_at.isoformat() if row.attendance_due_at else None,
+            "attendance_due_at": (
+                row.attendance_due_at.isoformat() if row.attendance_due_at else None
+            ),
             "attendance_status": row.attendance_status,
-            "resolution_due_at": row.resolution_due_at.isoformat() if row.resolution_due_at else None,
+            "resolution_due_at": (
+                row.resolution_due_at.isoformat() if row.resolution_due_at else None
+            ),
             "resolution_status": row.resolution_status,
             "total_paused_minutes": row.total_paused_minutes,
             "created_at": row.created_at.isoformat() if row.created_at else None,

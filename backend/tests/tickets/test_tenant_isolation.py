@@ -11,10 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.deps import get_db
 from app.core.security import create_access_token, hash_password
 from app.modules.catalog.seed import seed_catalog_defaults
+from app.modules.hub.seed import seed_manutencao_for_tenant
 from app.modules.locations.models import Location
 from app.modules.tenants.models import Tenant
 from app.modules.users.models import Role, User, UserRole
-from app.modules.hub.seed import seed_manutencao_for_tenant
 from app.modules.users.seed import seed_default_roles_and_permissions
 
 
@@ -76,7 +76,6 @@ class TestTicketTenantIsolation:
         _, _, bearer_b, _ = await _setup_tenant(db_session, slug_b)
 
         async with _make_client(db_session, bearer_a) as client_a:
-            stmt = select(Role)
             from app.modules.catalog.models import Priority
 
             prio_stmt = select(Priority).where(Priority.code == "low")

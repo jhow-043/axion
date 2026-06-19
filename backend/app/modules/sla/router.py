@@ -20,8 +20,16 @@ from app.modules.sla.schemas import (
 from app.modules.sla.service import SlaService
 from app.modules.tickets.repository import TicketRepository
 
-sla_router = APIRouter(prefix="/sla", tags=["sla"], dependencies=[Depends(require_module("manutencao"))])
-tickets_sla_router = APIRouter(prefix="/tickets", tags=["sla"], dependencies=[Depends(require_module("manutencao"))])
+sla_router = APIRouter(
+    prefix="/sla",
+    tags=["sla"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
+tickets_sla_router = APIRouter(
+    prefix="/tickets",
+    tags=["sla"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
 
 
 def _get_service(

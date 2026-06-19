@@ -26,8 +26,16 @@ from app.modules.timeline.repository import TicketEventRepository
 from app.modules.timeline.service import TimelineService
 from app.modules.users.repository import UserRepository
 
-tickets_closures_router = APIRouter(prefix="/tickets", tags=["closures"], dependencies=[Depends(require_module("manutencao"))])
-admin_router = APIRouter(prefix="/admin", tags=["closures"], dependencies=[Depends(require_module("manutencao"))])
+tickets_closures_router = APIRouter(
+    prefix="/tickets",
+    tags=["closures"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
+admin_router = APIRouter(
+    prefix="/admin",
+    tags=["closures"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
 
 
 def _get_service(

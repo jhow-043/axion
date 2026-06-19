@@ -24,7 +24,11 @@ from app.modules.dashboards.schemas import (
 )
 from app.modules.dashboards.service import DashboardService
 
-router = APIRouter(prefix="/dashboards", tags=["dashboards"], dependencies=[Depends(require_module("manutencao"))])
+router = APIRouter(
+    prefix="/dashboards",
+    tags=["dashboards"],
+    dependencies=[Depends(require_module("manutencao"))],
+)
 
 _DEFAULT_PERIOD_DAYS = settings.REPORT_MAX_PERIOD_DAYS
 
